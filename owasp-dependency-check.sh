@@ -22,6 +22,7 @@ docker run --rm \
     --volume "$REPORT_DIRECTORY":/report \
     owasp/dependency-check \
     --scan /src \
+    --nvdApiKey "f957fd4e-28e5-4657-b2c2-e60c56e5ceaf" \
     --format "ALL" \
     --project "My OWASP Dependency Check Project" \
     --out /report
