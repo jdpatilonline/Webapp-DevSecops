@@ -51,7 +51,7 @@ stages {
 		     }       
 			     }
 
-	stage ('App Deploy-To-Tomcat') {
+	stage ('WebApp Deploy-To-Tomcat') {
 	            steps {
 	                sh '#sudo scp -i /home/devsecops/.ssh/id_rsa -o StrictHostKeyChecking=no target/*.war devsecops-tomcat@192.168.5.161:/prod/apache-tomcat-8.5.39/webapps/webapp.war'
 	                sh '#sudo cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'     
