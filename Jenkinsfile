@@ -19,7 +19,7 @@ stages {
 		sh 'whoami'
 		sh 'pwd'
 	        sh 'rm trufflehog || true'
-	        sh '#docker run gesellix/trufflehog --json https://github.com/jdpatilonline/Webdemo_devsecops.git > trufflehog'
+	        sh 'docker run gesellix/trufflehog --json https://github.com/jdpatilonline/Webdemo_devsecops.git > trufflehog'
 	        sh 'cat trufflehog'
 		}
 	    			}
