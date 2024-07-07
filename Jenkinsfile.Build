@@ -22,7 +22,7 @@ pipeline {
       stage('DefectDojoPublisher') {
             steps {
                 withCredentials([string(credentialsId: 'deojokey2', variable: 'API_KEY')]) {
-                    defectDojoPublisher(artifact: '/var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml', productName: 'my-product', scanType: 'Dependency Check Scan', engagementName: 'ci/cd', defectDojoCredentialsId: API_KEY, sourceCodeUri: 'https://github.com/jdpatilonline/Webapp-DevSecops.git', branchTag: 'main')
+                    defectDojoPublisher(artifact: '/var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml', productName: 'my-product', scanType: 'Dependency Check Scan', engagementName: 'ci/cd', defectDojoCredentialsId: API_KEY, sourceCodeUrl: 'https://github.com/jdpatilonline/Webapp-DevSecops.git', branchTag: 'main')
                                   }
                 }
                                                                                                 }
