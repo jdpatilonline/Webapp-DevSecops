@@ -77,7 +77,7 @@ stages {
 	    
 	stage ('SSL Checks') {
 		steps {
-			sh 'sudo apt install -y python-pip'
+			sh '#sudo apt install -y python-pip'
 			sh 'pip install sslyze==1.4.2'
 			sh 'python -m sslyze --regular 192.168.5.161:8080 --json_out sslyze-output.json'
 			sh 'cat sslyze-output.json'
