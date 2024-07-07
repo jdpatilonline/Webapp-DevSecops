@@ -17,10 +17,7 @@ pipeline {
             steps {
                 sh 'mvn clean package'
             }
-        }
-        
-
-        
+        }    
         stage ('Deploy-To-Tomcat') {
             steps {
                 sh 'sudo scp -i /home/devsecops-jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no target/*.war devsecops-tomcat@192.168.5.161:/prod/apache-tomcat-8.5.39/webapps/webapp.war'
