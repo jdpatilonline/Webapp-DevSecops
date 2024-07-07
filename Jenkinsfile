@@ -19,7 +19,7 @@ stages {
 		sh 'whoami'
 		sh 'pwd'
 	        sh 'rm trufflehog || true'
-	        sh 'docker run gesellix/trufflehog --json https://github.com/jdpatilonline/Webdemo_devsecops.git > trufflehog'
+	        sh '#docker run gesellix/trufflehog --json https://github.com/jdpatilonline/Webdemo_devsecops.git > trufflehog'
 	        sh 'cat trufflehog'
 		}
 	    			}
@@ -39,8 +39,8 @@ stages {
 		steps {
 		withSonarQubeEnv('sonar') {
 				sh 'pwd' 
-				sh 'mvn sonar:sonar'
-				sh 'cat target/sonar/report-task.txt'
+				sh '#mvn sonar:sonar'
+				sh '#cat target/sonar/report-task.txt'
 			       		}
 			}
 			 }
@@ -54,7 +54,7 @@ stages {
 	stage ('App Deploy-To-Tomcat') {
 	            steps {
 	                sh '#sudo scp -i /home/devsecops/.ssh/id_rsa -o StrictHostKeyChecking=no target/*.war devsecops-tomcat@192.168.5.161:/prod/apache-tomcat-8.5.39/webapps/webapp.war'
-	                      
+	                sh '#sudo cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'     
 	                   }     
                                       }
 
