@@ -54,14 +54,14 @@ stages {
 	stage ('WebApp Deploy-To-Tomcat') {
 	            steps {
 	                sh '#sudo scp -i /home/devsecops/.ssh/id_rsa -o StrictHostKeyChecking=no target/*.war devsecops-tomcat@192.168.5.161:/prod/apache-tomcat-8.5.39/webapps/webapp.war'
-	                sh '#sudo cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'     
+	                sh 'sudo cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'     
 	                   }     
                                       }
 
 	stage ('Nmap Port Scan') {
 		    steps {
 			sh 'rm nmap* || true'
-			sh 'docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -oX nmap 192.168.5.161'
+			sh 'docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -oX nmap 192.168.5.160'
 			sh 'cat nmap'
 		    	}
 	    			}
@@ -70,7 +70,7 @@ stages {
 		    steps {
 			sh 'rm nikto-output.xml || true'
 			sh 'docker pull secfigo/nikto:latest'
-			sh 'docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h 192.168.5.161 -p 8080 -output /report/nikto-output.xml'
+			sh 'docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h 192.168.5.160 -p 8081 -output /report/nikto-output.xml'
 			sh 'cat nikto-output.xml'   
 		    	}
 	    			}
@@ -79,14 +79,14 @@ stages {
 		steps {
 			sh '#sudo apt install -y python-pip'
 			sh 'pip install sslyze==1.4.2'
-			sh 'python -m sslyze --regular 192.168.5.161:8080 --json_out sslyze-output.json'
+			sh 'python -m sslyze --regular 192.168.5.160:8081 --json_out sslyze-output.json'
 			sh 'cat sslyze-output.json'
 		    }
 	    			}
 
 	stage ('DAST') {
 		steps {
-			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://192.168.5.161:8080/webapp/ || true'
+			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://192.168.5.160:8081/webapp/ || true'
 		     }
 			}  	
 
