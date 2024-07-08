@@ -86,7 +86,18 @@ stages {
 
 	stage ('DAST') {
 		steps {
-			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://192.168.5.160:8081/webapp/ || true'
+			sh 'zap.sh || true'
+			sh 'export ZAP_PORT=8085 || true'
+			sh 'export ZAP_PATH=/usr/local/bin/zap.sh || true'
+			sh 'export ZAP_API_KEY=fkam8hvdcias29hagig45t9k62 || true'
+			sh 'zap-cli status || true'
+			sh 'zap-cli -v spider http://testphp.vulnweb.com/ || true'
+			sh 'zap-cli -v quick-scan http://testphp.vulnweb.com/ || true'
+			sh '# zap-cli -v active-scan --recursive http://testphp.vulnweb.com/ || true'
+			sh 'zap-cli -v report -o report-zap-cli-first-scan.html -f html || true'
+			sh 'zap-cli -v report -o report-zap-cli-first-scan.xml -f xml || true'
+			sh '# zap-cli -v session save  ~/active-scan.session|| true'
+			sh '#zap-cli -v shutdown || true'
 		     }
 			}  	
 
