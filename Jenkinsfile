@@ -90,19 +90,15 @@ stages {
 		     }
 			}  	
 
-	stage ('Upload Reports to Defect Dojo') {
-			    steps {
-				sh 'pip install requests'
-				sh 'wget https://raw.githubusercontent.com/devopssecure/webapp/master/upload-results.py'
-				sh 'chmod +x upload-results.py'
-				sh '#python upload-results.py --host 127.0.0.1:8000 --api_key 66879c160803596f132aff025fee9a170366f615 --engagement_id 4 --result_file trufflehog --username admin --scanner "SSL Labs Scan"'
-				sh '#python upload-results.py --host 127.0.0.1:8000 --api_key 66879c160803596f132aff025fee9a170366f615 --engagement_id 4 --result_file /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml --username admin --scanner "Dependency Check Scan"'
-				sh '#python upload-results.py --host 127.0.0.1:8000 --api_key 66879c160803596f132aff025fee9a170366f615 --engagement_id 4 --result_file nmap --username admin --scanner "Nmap Scan"'
-				sh '#python upload-results.py --host 127.0.0.1:8000 --api_key 66879c160803596f132aff025fee9a170366f615 --engagement_id 4 --result_file sslyze-output.json --username admin --scanner "SSL Labs Scan"'
-				sh '#python upload-results.py --host 127.0.0.1:8000 --api_key 66879c160803596f132aff025fee9a170366f615 --engagement_id 4 --result_file nikto-output.xml --username admin'
-				    
-			    	}
-		    				}
+	stage ('Vulnerability Management view DefectDojo') {
+		steps {
+		        sh 'curl -X "POST" "https://demo.defectdojo.org/api/v2/import-scan/" -H "accept: application/json" -H "Authorization: Token cbbd64e42cc2da8bf534dbdf625fb6bfdd259837" -H "Content-Type: multipart/form-data" -F "active=false" -F "verified=true" -F "close_old_findings=true" -F "engagement_name=DAST pipeline" -F "build_id=1" -F "deduplication_on_engagement=true" -F "minimum_severity=Medium" -F "create_finding_groups_for_all_findings=true" -F "commit_hash=GIT_COMMIT" -F "product_type_name=Research and Development" -F "scan_date:=2024-6-10T03:07:43", -F "product_name=WebApp" -F "file=@/var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml" -F "auto_create_context=true" -F "scan_type=Dependency Check Scan" -F "branch_tag=GIT_BRANCH" || true'
+		        sh 'curl -X "POST" "https://demo.defectdojo.org/api/v2/import-scan/" -H "accept: application/json" -H "Authorization: Token cbbd64e42cc2da8bf534dbdf625fb6bfdd259837" -H "Content-Type: multipart/form-data" -F "active=false" -F "verified=true" -F "close_old_findings=true" -F "engagement_name=DAST pipeline" -F "build_id=1" -F "deduplication_on_engagement=true" -F "minimum_severity=Medium" -F "create_finding_groups_for_all_findings=true" -F "commit_hash=GIT_COMMIT" -F "product_type_name=Research and Development" -F "scan_date:=2024-6-10T03:07:43", -F "product_name=WebApp" -F "file=@nmap.result" -F "auto_create_context=true" -F "scan_type=Nmap Scan" -F "branch_tag=GIT_BRANCH" || true'
+		        sh 'curl -X "POST" "https://demo.defectdojo.org/api/v2/import-scan/" -H "accept: application/json" -H "Authorization: Token cbbd64e42cc2da8bf534dbdf625fb6bfdd259837" -H "Content-Type: multipart/form-data" -F "active=false" -F "verified=true" -F "close_old_findings=true" -F "engagement_name=DAST pipeline" -F "build_id=1" -F "deduplication_on_engagement=true" -F "minimum_severity=High" -F "create_finding_groups_for_all_findings=true" -F "commit_hash=GIT_COMMIT" -F "product_type_name=Research and Development" -F "scan_date:=2024-6-10T03:07:43", -F "product_name=WebApp" -F "file=@sslyze-output.json" -F "auto_create_context=true" -F "scan_type=SSL Labs Scan" -F "branch_tag=GIT_BRANCH" || true'
+		        sh 'curl -X "POST" "https://demo.defectdojo.org/api/v2/import-scan/" -H "accept: application/json" -H "Authorization: Token cbbd64e42cc2da8bf534dbdf625fb6bfdd259837" -H "Content-Type: multipart/form-data" -F "active=false" -F "verified=true" -F "close_old_findings=true" -F "engagement_name=DAST pipeline" -F "build_id=1" -F "deduplication_on_engagement=true" -F "minimum_severity=High" -F "create_finding_groups_for_all_findings=true" -F "commit_hash=GIT_COMMIT" -F "product_type_name=Research and Development" -F "scan_date:=2024-6-10T03:07:43", -F "product_name=WebApp" -F "file=@nikto-output.xml" -F "auto_create_context=true" -F "scan_type=Nikto Scan" -F "branch_tag=GIT_BRANCH" || true'
+		        sh 'sh defectdojoscript.sh || true'
+	          }
+	                    }
 
 
 	}
