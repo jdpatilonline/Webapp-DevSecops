@@ -24,18 +24,21 @@ pipeline {
 
   	stage ('DAST') {
   		steps {
-  			sh 'sudo zap.sh || true'
-  			sh 'sudo export ZAP_PORT=8086 || true'
-  			sh 'sudo export ZAP_PATH=/usr/local/bin/zap.sh || true'
-  			sh 'sudo export ZAP_API_KEY=8jcbd3d2ueumncq7cmui1s1839 || true'
-  			sh 'sudo zap-cli status || true'
-  			sh 'sudo zap-cli -v spider http://testphp.vulnweb.com/ || true'
-  			sh 'sudo zap-cli -v quick-scan http://testphp.vulnweb.com/ || true'
-  			sh '#sudo zap-cli -v active-scan --recursive http://testphp.vulnweb.com/ || true'
-  			sh 'sudo zap-cli -v report -o report-zap-cli-first-scan.html -f html || true'
-  			sh 'sudo zap-cli -v report -o report-zap-cli-first-scan.xml -f xml || true'
-  			sh '#sudo  zap-cli -v session save  ~/active-scan.session|| true'
-  			sh '#sudo zap-cli -v shutdown || true'
+        sh 'whoami'
+        sh 'sudo su'
+        sh 'whoami'
+  			sh 'zap.sh || true'
+  			sh 'export ZAP_PORT=8086 || true'
+  			sh 'export ZAP_PATH=/usr/local/bin/zap.sh || true'
+  			sh 'export ZAP_API_KEY=8jcbd3d2ueumncq7cmui1s1839 || true'
+  			sh 'zap-cli status || true'
+  			sh 'zap-cli -v spider http://testphp.vulnweb.com/ || true'
+  			sh 'zap-cli -v quick-scan http://testphp.vulnweb.com/ || true'
+  			sh '#zap-cli -v active-scan --recursive http://testphp.vulnweb.com/ || true'
+  			sh 'zap-cli -v report -o report-zap-cli-first-scan.html -f html || true'
+  			sh 'zap-cli -v report -o report-zap-cli-first-scan.xml -f xml || true'
+  			sh '#zap-cli -v session save  ~/active-scan.session|| true'
+  			sh '#zap-cli -v shutdown || true'
   		     }
   			} 
  
