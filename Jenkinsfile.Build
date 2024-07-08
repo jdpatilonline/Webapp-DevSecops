@@ -24,7 +24,7 @@ pipeline {
 
   	stage ('DAST') {
   		steps {
-  			sh 'zap.sh || true'
+  			sh 'sudo zap.sh || true'
   			sh 'export ZAP_PORT=8085 || true'
   			sh 'export ZAP_PATH=/usr/local/bin/zap.sh || true'
   			sh 'export ZAP_API_KEY=fkam8hvdcias29hagig45t9k62 || true'
