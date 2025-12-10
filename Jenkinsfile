@@ -8,7 +8,7 @@ pipeline {
         string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
         string(name: 'DEFECTDOJO_PRODUCT', defaultValue: 'WebApp', description: 'DefectDojo Product Name')
         string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
-		string(name: 'DEFECTDOJO_LEAD', defaultValue: 'admin', description: 'DefectDojo Lead Name')
+	//	string(name: 'DEFECTDOJO_LEAD', defaultValue: 'admin', description: 'DefectDojo Lead Name')
     }
 
     environment {
@@ -169,7 +169,7 @@ pipeline {
 					curl -k -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \
 					  -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \
 					  -F "engagement_name=${params.DEFECTDOJO_ENGAGEMENT}" \
-					  -F "lead=${params.DEFECTDOJO_LEAD}" \
+					  -F "lead=admin" \
 					  -F "scan_date=$(date +%Y-%m-%d)" \
 					  -F "build_id=${BUILD_ID}" \
 					  -F "scan_type=${r.type}" \
