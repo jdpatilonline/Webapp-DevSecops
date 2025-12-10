@@ -92,28 +92,20 @@ pipeline {
         }
     }
 */
-	stage('Nikto Scan') {
-	    steps {
-	        sh '''
-	        # Use bash to ensure compatibility with $(pwd) and other Bash features
-	        /bin/bash -c "
-	            # Clean up old output file if it exists
-	            rm -f nikto-output.xml || true
-	
-	            # Pull the latest Nikto Docker image
-	            docker pull secfigo/nikto:latest
-	
-	            # Run the Nikto scan with the current user's UID and GID for permissions
-	            # Mount the current working directory into the Docker container at /report
-	            docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml
-	
-	            # Display the Nikto output
-	            cat /report/nikto-output.xml
-	        "
-	        '''
-	    }
-	}
-	    
+	  stages {
+	        stage('Nikto Scan') {
+	            steps {
+	                    # Clean up old output file if it exists
+	                    sh 'rm -f nikto-output.xml || true'
+	                    # Pull the latest Nikto Docker image
+	                    sh 'docker pull secfigo/nikto:latest'
+	                    # Run the Nikto scan using the dynamic parameter TARGET_URL
+	                    sh 'docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -p 443 -output /report/nikto-output.xml'
+	                    # Display the Nikto output
+	                    sh 'cat /report/nikto-output.xml'
+					    }
+					}    
+		  
         stage('SSL Checks - SSlyze') {
             steps {
                 sh """
