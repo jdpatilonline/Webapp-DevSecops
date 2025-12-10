@@ -1,9 +1,9 @@
 #!/bin/sh
-
+# test
 OWASPDC_DIRECTORY=$HOME/OWASP-Dependency-Check
 DATA_DIRECTORY="$OWASPDC_DIRECTORY/data"
 REPORT_DIRECTORY="$OWASPDC_DIRECTORY/reports"
-
+# test
 if [ ! -d "$DATA_DIRECTORY" ]; then
     echo "Initially creating persistent directories"
     mkdir -p "$DATA_DIRECTORY"
