@@ -163,29 +163,32 @@ pipeline {
                         [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan", min_sev: "High"],
                         [file: "${ZAP_REPORT_XML}", type: "OWASP ZAP Scan", min_sev: "Medium"]
                     ]
-
-                    for (r in reports) {
-					sh """
-					curl -k -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \
-					  -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \
-					  -F "engagement_name=\${params.DEFECTDOJO_ENGAGEMENT}" \
-					  -F "lead=admin" \
-					  -F "scan_date=\$(date +%Y-%m-%d)" \
-					  -F "build_id=\${BUILD_ID}" \
-					  -F "scan_type=\${r.type}" \
-					  -F "file=@\${r.file}" \
-					  -F "active=false" \
-					  -F "verified=true" \
-					  -F "close_old_findings=true" \
-					  -F "deduplication_on_engagement=true" \
-					  -F "minimum_severity=\${r.min_sev}" \
-					  -F "create_finding_groups_for_all_findings=true" \
-					  -F "commit_hash=\${COMMIT_HASH}" \
-					  -F "branch_tag=\${BRANCH_NAME}" \
-					  -F "product_type_name=Research and Development" \
-					  -F "product_name=\${params.DEFECTDOJO_PRODUCT}" \
-					  -F "auto_create_context=true"
-					"""
+				 	def scanDateTime = new Date().format("yyyy-MM-dd'T'HH:mm:ss") 	
+                    
+					for (r in reports) {
+				    // Use triple double-quotes to allow Groovy interpolation
+				    sh """
+				        curl -k -X POST "http://127.0.0.1:8000/api/v2/import-scan/" \\
+				          -H "Authorization: Token b218b4dd917bdb4e9b86237bc8ce2891dcff147b" \\
+				          -F "engagement_name=${params.DEFECTDOJO_ENGAGEMENT}" \\
+				          -F "lead_name=admin" \\
+				          -F "scan_date_time=${scanDateTime}" \\
+				          -F "build_id=${BUILD_ID}" \\
+				          -F "scan_type=${r.type}" \\
+				          -F "file=@${r.file}" \\
+				          -F "active=false" \\
+				          -F "verified=true" \\
+				          -F "close_old_findings=true" \\
+				          -F "deduplication_on_engagement=true" \\
+				          -F "minimum_severity=${r.min_sev}" \\
+				          -F "create_finding_groups_for_all_findings=true" \\
+				          -F "commit_hash=${COMMIT_HASH}" \\
+				          -F "branch_tag=${BRANCH_NAME}" \\
+				          -F "product_type_name=Research and Development" \\
+				          -F "product_name=${params.DEFECTDOJO_PRODUCT}" \\
+				          -F "auto_create_context=true"
+				    """
+}
 
                     }
                 }
