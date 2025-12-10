@@ -46,7 +46,7 @@ pipeline {
     	      steps {
     	         sh 'rm owasp* || true'
 
-                 sh 'echo "Downloading OWASP Dependency-Check script...'                  
+                 sh 'echo Downloading OWASP Dependency-Check script...'                  
                  sh 'wget -O owasp-dependency-checker.sh "https://raw.githubusercontent.com/jdpatilonline/Webapp-DevSecops/main/owasp-dependency-checker.sh" '
     	         sh 'chmod +x owasp-dependency-checker.sh'
                   
