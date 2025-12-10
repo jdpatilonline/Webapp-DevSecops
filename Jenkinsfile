@@ -5,7 +5,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TARGET_URL', defaultValue: 'testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
+        string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
         string(name: 'DEFECTDOJO_PRODUCT', defaultValue: 'WebApp', description: 'DefectDojo Product Name')
         string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
     }
