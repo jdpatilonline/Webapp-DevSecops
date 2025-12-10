@@ -123,7 +123,6 @@ stage('Security Scan (OWASP ZAP)') {
     steps {
         script {
             echo "Dowloading ZAP ..."
-            
             // 1. Pull the image manually to ensure it exists
            // sh 'docker pull zaproxy/zap-stable'
             // 2. Run the container using standard Docker CLI
@@ -131,7 +130,7 @@ stage('Security Scan (OWASP ZAP)') {
             // -v $WORKSPACE:/zap/wrk:rw : map the workspace
             // zap-baseline.py ... : the command to run inside
             // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)            
-             echo "Starting ZAP Scan..."
+            echo "Starting ZAP Scan..."
 			def zapCommand = """
                 docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
                 zaproxy/zap-stable \
@@ -144,6 +143,7 @@ stage('Security Scan (OWASP ZAP)') {
             // 3. check if the report was created to confirm success
             if (fileExists('zap_report.html')) {
                 echo "ZAP Report generated successfully."
+				cat "zap_report.html"
             } else {
                 error "ZAP Report was not generated. Check Docker logs."
             }
