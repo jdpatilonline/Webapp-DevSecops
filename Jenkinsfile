@@ -91,18 +91,21 @@ pipeline {
             """
         }
     }
-*/
-	        stage('Nikto Scan') {
-	            steps {
-	                    // Clean up old output file if it exists
-	                    sh 'rm -f nikto-output.xml || true'
-	                    // Pull the latest Nikto Docker image
-	                    sh 'docker pull secfigo/nikto:latest'
-	                    // Run the Nikto scan using the dynamic parameter TARGET_URL
-						echo "Target URL: ${params.TARGET_URL}"
-	                    sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml"
-	                    // Display the Nikto output
-	                    sh 'cat /report/nikto-output.xml'
+	
+	    stage('Nikto Scan') {
+	        steps {
+		          // Clean up old output file if it exists
+	              sh 'rm -f nikto-output.xml || true'
+	              
+				  // Pull the latest Nikto Docker image
+	              sh 'docker pull secfigo/nikto:latest'
+	              
+				  // Run the Nikto scan using the dynamic parameter TARGET_URL
+				  echo "Target URL: ${params.TARGET_URL}"
+	              sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml"
+	               
+				   // Display the Nikto output
+	                sh 'cat /report/nikto-output.xml'
 					    }
 					}    
 		  
@@ -115,15 +118,16 @@ pipeline {
                 """
             }
         }
-
+*/
         stage('DAST - OWASP ZAP Scanner') {
             steps {
-                sh """
-                rm -f \$ZAP_REPORT_XML || true
+  /*               sh """
+               rm -f \$ZAP_REPORT_XML || true
                 docker run --rm -v "\\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
                     zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml
                 ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
-                """
+  */              """
+				sh "docker run --rm -v "\\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml"
             }
         }
 
