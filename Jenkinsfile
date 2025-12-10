@@ -42,22 +42,20 @@ pipeline {
             }
         }
 
-        stage('SCA - OWASP Dependency-Check') {
-            steps {
-                sh '''
-                echo "Downloading OWASP Dependency-Check script..."
-                wget -O owasp-dependency-checker.sh https://raw.githubusercontent.com/jdpatilonline/Webapp-DevSecops/main/owasp-dependency-checker.sh
-                chmod +x owasp-dependency-checker.sh
-        
-                echo "Running OWASP Dependency-Check..."
-                ./owasp-dependency-checker.sh
-        
-                echo "Dependency-Check reports:"
-                ls -lh /var/lib/jenkins/OWASP-Dependency-Check/reports/
-                '''
-            }
-        }
+    	stage ('SCA-Owasp-Dependency-checker') {
+    	      steps {
+    	         sh 'rm owasp* || true'
 
+                 sh 'echo "Downloading OWASP Dependency-Check script...'                  
+                 sh 'wget -O owasp-dependency-checker.sh "https://raw.githubusercontent.com/jdpatilonline/Webapp-DevSecops/main/owasp-dependency-checker.sh" '
+    	         sh 'chmod +x owasp-dependency-checker.sh'
+                  
+                 sh 'echo Running OWASP Dependency-Check...'
+    	         sh 'bash owasp-dependency-checker.sh'
+                 sh 'ls -lh /var/lib/jenkins/OWASP-Dependency-Check/reports/'
+    	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
+    		}
+        
         stage('SAST - SonarQube') {
             steps {
                 withSonarQubeEnv('sonar') {
