@@ -126,14 +126,12 @@ stage('DAST - OWASP ZAP Scanner') {
             sh "mkdir -p \$(pwd)/zap_report"
             echo "Target URL: ${params.TARGET_URL}"
 
-            // Set appropriate permissions for the report directory
-            sh "chmod -R 777 \$(pwd)/zap_report"
-
-            // Ensure writable directory for ZAP inside the container
+            // Create the configuration directory and ensure it's writable
             sh "mkdir -p \$(pwd)/zap_config"
-
-            // Set appropriate permissions for the configuration directory
-            sh "chmod -R 777 \$(pwd)/zap_config"
+            
+            // Set appropriate permissions for the configuration directory (without using chmod)
+            // Ensure this directory is created with proper permissions during setup
+            sh "touch \$(pwd)/zap_config/zap.yaml"  // This will create the file in the directory
 
             // Run ZAP scan with correct permissions and volume mounting
             sh """
@@ -148,6 +146,7 @@ stage('DAST - OWASP ZAP Scanner') {
         }
     }
 }
+
 
         stage('Upload Reports to DefectDojo') {
             steps {
