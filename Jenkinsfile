@@ -92,7 +92,6 @@ pipeline {
         }
     }
 */
-	  stages {
 	        stage('Nikto Scan') {
 	            steps {
 	                    // Clean up old output file if it exists
