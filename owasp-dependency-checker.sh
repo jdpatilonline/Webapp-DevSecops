@@ -1,36 +1,28 @@
 #!/bin/sh
 
-# --- Configuration ---
 echo "Setting up persistent directories..."
-
-# Use a persistent folder outside the workspace to store the NVD database
 DATA_DIRECTORY="/var/lib/jenkins/OWASP-Dependency-Check/data"
 REPORT_DIRECTORY="$WORKSPACE/OWASP-Dependency-Check/reports"
 
 mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
 
-# Ensure Jenkins user owns the directories
-chown -R $(id -u):$(id -g) "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
-
-# 1. Initialize NVD database only if missing
-DB_FILE="$DATA_DIRECTORY/cve.db"
-
-if [ ! -f "$DB_FILE" ]; then
-    echo "No NVD database found. Initializing database..."
-    docker run --rm \
-        -u $(id -u):$(id -g) \
-        -v "$DATA_DIRECTORY":/usr/share/dependency-check/data \
-        owasp/dependency-check \
-        --updateonly
-else
-    echo "Existing NVD database detected. Skipping full initialization."
-fi
+# 1. Update NVD database (creates it if missing)
+echo "Updating NVD database..."
+docker run --rm \
+    -u $(id -u):$(id -g) \
+    -v "$DATA_DIRECTORY":/usr/share/dependency-check/data \
+    owasp/dependency-check \
+    --updateonly
 
 # 2. Pull latest Docker image
 echo "Pulling latest Dependency Check Docker image..."
 docker pull owasp/dependency-check
 
-# 3. Run the scan
+# 3. Clean old reports
+echo "Cleaning old reports..."
+rm -rf "$REPORT_DIRECTORY"/*
+
+# 4. Run the vulnerability scan
 echo "--- Running the vulnerability scan ---"
 docker run --rm \
     -u $(id -u):$(id -g) \
@@ -43,8 +35,6 @@ docker run --rm \
     --format ALL \
     --project "My OWASP Dependency Check Project" \
     --out /report
-    # Optional suppression:
-    # --suppression "/src/security/dependency-check-suppression.xml"
 
 echo "--- Scan Finished ---"
 echo "Reports available at $REPORT_DIRECTORY"
