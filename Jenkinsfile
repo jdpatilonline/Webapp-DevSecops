@@ -13,7 +13,7 @@ pipeline {
     environment {
         DEFECTDOJO_URL = 'http://127.0.0.1:8000'
        // DEFECTDOJO_API_KEY = credentials('defectdojo') // Jenkins credentials
-	    DEFECTDOJO_API_KEY = "c8a653ab79240e2e3af10fd7ad78113ccf7c35fa" // Jenkins credentials
+	    DEFECTDOJO_API_KEY = "b218b4dd917bdb4e9b86237bc8ce2891dcff147b" // Jenkins credentials
         BUILD_ID = "${env.BUILD_NUMBER}"
         COMMIT_HASH = "${env.GIT_COMMIT ?: 'unknown'}"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'main'}"
@@ -119,40 +119,40 @@ pipeline {
                 """
             }
         }
+		
+		stage('Security Scan (OWASP ZAP)') { 
+		    steps {
+		        script {
+		            echo "Dowloading ZAP ..."
+		            // 1. Pull the image manually to ensure it exists
+		           // sh 'docker pull zaproxy/zap-stable'
+		            // 2. Run the container using standard Docker CLI
+		            // -u 0: run as root
+		            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
+		            // zap-baseline.py ... : the command to run inside
+		            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)            
+		            echo "Starting ZAP Scan..."
+					def zapCommand = """
+		                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
+		                zaproxy/zap-stable \
+		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html || exit 0
+		            """
+					
+		            sh zapCommand
+					echo "Scan Finsihed..."
+					
+		            // 3. check if the report was created to confirm success
+		            if (fileExists('zap_report.html')) {
+		                echo "ZAP Report generated successfully."
+						sh "pwd"
+						sh "cat zap_report.html"
+		            } else {
+		                error "ZAP Report was not generated. Check Docker logs."
+		            }
+		        }
+		    }
+		}
 */
-stage('Security Scan (OWASP ZAP)') { 
-    steps {
-        script {
-            echo "Dowloading ZAP ..."
-            // 1. Pull the image manually to ensure it exists
-           // sh 'docker pull zaproxy/zap-stable'
-            // 2. Run the container using standard Docker CLI
-            // -u 0: run as root
-            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
-            // zap-baseline.py ... : the command to run inside
-            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)            
-            echo "Starting ZAP Scan..."
-			def zapCommand = """
-                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
-                zaproxy/zap-stable \
-                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html || exit 0
-            """
-			
-            sh zapCommand
-			echo "Scan Finsihed..."
-			
-            // 3. check if the report was created to confirm success
-            if (fileExists('zap_report.html')) {
-                echo "ZAP Report generated successfully."
-				sh "pwd"
-				sh "cat zap_report.html"
-            } else {
-                error "ZAP Report was not generated. Check Docker logs."
-            }
-        }
-    }
-}
-
         stage('Upload Reports to DefectDojo') {
             steps {
                 script {
