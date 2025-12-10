@@ -61,8 +61,8 @@ stages {
 	stage ('Nmap Port Scan') {
 		    steps {
 			sh 'rm nmap* || true'
-			sh '#docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -oX nmap.result 192.168.5.160'
-			sh 'docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -oX nmap.result 127.0.0.1'
+			sh '#docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result Webserver_ip'
+			sh 'docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139'
 			sh 'cat nmap.result'
 		    	}
 	    			}
@@ -71,8 +71,8 @@ stages {
 		    steps {
 			sh 'rm nikto-output.xml || true'
 			sh 'docker pull secfigo/nikto:latest'
-			sh '#docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h 192.168.5.160 -p 8081 -output /report/nikto-output.xml'
-			sh 'docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h 127.0.0.1 -p 8081 -output /report/nikto-output.xml'
+			sh '#docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h Webserver_ip -p 8081 -output /report/nikto-output.xml'
+			sh 'docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml'
 			sh 'cat nikto-output.xml'   
 		    	}
 	    			}
@@ -81,8 +81,8 @@ stages {
 		steps {
 			sh '#sudo apt install -y python-pip'
 			sh 'pip install sslyze==1.4.2'
-			sh '#python -m sslyze --regular 192.168.5.160:8081 --json_out sslyze-output.json'
-			sh 'python -m sslyze --regular 127.0.0.1:8081 --json_out sslyze-output.json'
+			sh '#python -m sslyze --regular Webserver_ip:8081 --json_out sslyze-output.json'
+			sh 'python -m sslyze --regular 192.168.10.139:8081 --json_out sslyze-output.json'
 			sh 'cat sslyze-output.json'
 		    }
 	    			}
@@ -91,7 +91,7 @@ stages {
 		steps {
 			sh 'rm  Zap_report.xml || true'	
 			sh '#docker run -t zaproxy/zap-stable zap-baseline.py -t http://testphp.vulnweb.com/ || true'
-			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://127.0.0.1 || true'
+			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://192.168.10.139 || true'
 		     }
 			}  	
 
