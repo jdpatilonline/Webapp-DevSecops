@@ -1,22 +1,25 @@
 #!/bin/sh
 
 # --- Configuration ---
-echo "Setting up persistent directories..."
+echo "Setting up persistent directories in Jenkins workspace..."
 
-OWASPDC_DIRECTORY=$HOME/OWASP-Dependency-Check
+# Use Jenkins workspace instead of /var/lib/jenkins
+OWASPDC_DIRECTORY="$WORKSPACE/OWASP-Dependency-Check"
 DATA_DIRECTORY="$OWASPDC_DIRECTORY/data"
 REPORT_DIRECTORY="$OWASPDC_DIRECTORY/reports"
 
-# 1. Directory Check and Setup
+# Create directories if they don't exist
 mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
-chmod -R 777 "$OWASPDC_DIRECTORY"
 
-# 2. Database Maintenance — only purge if DB missing or corrupted
+# No need to chmod if ownership is correct in workspace
+
+# 2. Database Maintenance — only purge if DB missing
 DB_FILE="$DATA_DIRECTORY/cve.db"
 
 if [ ! -f "$DB_FILE" ]; then
-    echo "No NVD database found. Running purge to initialize database..."
+    echo "No NVD database found. Initializing database..."
     docker run --rm \
+        -u $(id -u):$(id -g) \
         -v "$DATA_DIRECTORY":/usr/share/dependency-check/data \
         owasp/dependency-check \
         --purge
@@ -24,15 +27,16 @@ else
     echo "Existing NVD database detected. Skipping purge."
 fi
 
-# 3. Pull the Latest Docker Image
-echo "Downloading the latest Dependency Check Docker image..."
+# 3. Pull latest Docker image
+echo "Pulling latest Dependency Check Docker image..."
 docker pull owasp/dependency-check
 
-# 4. Perform Scan
+# 4. Run the scan
 echo "--- Running the vulnerability scan ---"
 
 docker run --rm \
-    -v "$(pwd)":/src \
+    -u $(id -u):$(id -g) \
+    -v "$WORKSPACE":/src \
     -v "$DATA_DIRECTORY":/usr/share/dependency-check/data \
     -v "$REPORT_DIRECTORY":/report \
     owasp/dependency-check \
@@ -41,5 +45,8 @@ docker run --rm \
     --format "ALL" \
     --project "My OWASP Dependency Check Project" \
     --out /report
+    # Optional suppression:
+    # --suppression "/src/security/dependency-check-suppression.xml"
 
 echo "--- Scan Finished ---"
+echo "Reports available at $REPORT_DIRECTORY"
