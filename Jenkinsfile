@@ -139,15 +139,15 @@ pipeline {
 	steps {
 	                script {
 				 // Create the report directory if it doesn't exist
-                    sh "mkdir -p \$(pwd)/report"
+                    sh "mkdir -p \$(pwd)/zap_report"
                     echo "Target URL: ${params.TARGET_URL}"
 				
                 // Set appropriate permissions for the report directory
-                    sh "chmod -R 777 \$(pwd)/report"
+                    sh "chmod -R 777 \$(pwd)/zap_report"
 
                     // Run ZAP scan with correct permissions and volume mounting
                     sh """
-                        docker run --rm -v \$(pwd)/report:/zap/wrk/ --user \$(id -u):\$(id -g) \
+                        docker run --rm -v \$(pwd)/zap_report:/zap/wrk/ --user \$(id -u):\$(id -g) \
                         -t zaproxy/zap-stable zap-baseline.py \
                         -t ${params.TARGET_URL} \
                         -r /zap/wrk/OWASP-ZAP-report.html \
