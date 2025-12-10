@@ -15,7 +15,7 @@ pipeline {
         DEFECTDOJO_URL = 'http://127.0.0.1:8000'
        // DEFECTDOJO_API_KEY = credentials('defectdojo') // Jenkins credentials
 	    DEFECTDOJO_API_KEY = "b218b4dd917bdb4e9b86237bc8ce2891dcff147b" // Jenkins credentials
-		DEFECTDOJO_ENGAGEMENT = "DAST pipeline"						// DefectDojo Engagement Name
+		DEFECTDOJO_ENGAGEMENT = "DAST_pipeline"						// DefectDojo Engagement Name
         BUILD_ID = "${env.BUILD_NUMBER}"
         COMMIT_HASH = "${env.GIT_COMMIT ?: 'unknown'}"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'main'}"
