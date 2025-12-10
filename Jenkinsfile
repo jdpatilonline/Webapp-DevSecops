@@ -95,6 +95,8 @@ pipeline {
         stage('Nikto Scan') {
             steps {
                 sh '''
+                # Use bash to ensure compatibility with the syntax
+                /bin/bash -c "
                 # Clean up old output file if it exists
                 rm -f nikto-output.xml || true
         
@@ -108,6 +110,7 @@ pipeline {
         
                 # Display the Nikto output
                 cat /report/nikto-output.xml
+                "
                 '''
             }
         }
