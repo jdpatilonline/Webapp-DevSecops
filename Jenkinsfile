@@ -44,18 +44,17 @@ pipeline {
 
         stage('SCA - OWASP Dependency-Check') {
             steps {
-                sh """
-                mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
-                docker run --rm -u \\$(id -u):\\$(id -g) -v "$DATA_DIRECTORY":/usr/share/dependency-check/data owasp/dependency-check --updateonly
-                docker pull owasp/dependency-check
-                rm -rf "$REPORT_DIRECTORY"/*
-                docker run --rm -u \\$(id -u):\\$(id -g) -v "$WORKSPACE":/src -v "$DATA_DIRECTORY":/usr/share/dependency-check/data -v "$REPORT_DIRECTORY":/report owasp/dependency-check \\
-                    --scan /src \\
-                    --nvdApiKey "f957fd4e-28e5-4657-b2c2-e60c56e5ceaf" \\
-                    --format ALL \\
-                    --project "My OWASP Dependency Check Project" \\
-                    --out /report
-                """
+                sh '''
+                echo "Downloading OWASP Dependency-Check script..."
+                wget -O owasp-dependency-checker.sh https://raw.githubusercontent.com/jdpatilonline/Webapp-DevSecops/main/owasp-dependency-checker.sh
+                chmod +x owasp-dependency-checker.sh
+        
+                echo "Running OWASP Dependency-Check..."
+                ./owasp-dependency-checker.sh
+        
+                echo "Dependency-Check reports:"
+                ls -lh /var/lib/jenkins/OWASP-Dependency-Check/reports/
+                '''
             }
         }
 
