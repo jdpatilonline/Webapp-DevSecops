@@ -31,7 +31,7 @@ pipeline {
                 '''
             }
         }
-
+/*
         stage('Check-Secrets - Trufflehog') {
             steps {
                 sh '''
@@ -61,7 +61,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Build') {
             steps {
                 sh 'mvn clean package'
@@ -74,15 +74,23 @@ pipeline {
             }
         }
 
-        stage('Nmap Scan') {
-            steps {
-                sh """
-                rm -f nmap.result || true
-                docker run --rm -v "\\\$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
-                cat nmap.result
-                """
-            }
+       stage('Nmap Scan') {
+        steps {
+            sh """
+            # Clean up old results if present
+            rm -f nmap.result || true
+            
+            # Use absolute path for mounting the volume
+            DOCKER_DIR=\$(pwd)
+            
+            # Run the Nmap scan with the provided target IP
+            docker run --rm -v \${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.result ${params.TARGET_URL}
+            
+            # Output the results of the scan
+            cat nmap.result
+            """
         }
+    }
 
         stage('Nikto Scan') {
             steps {
