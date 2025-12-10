@@ -188,8 +188,6 @@ pipeline {
 				          -F "product_name=${params.DEFECTDOJO_PRODUCT}" \\
 				          -F "auto_create_context=true"
 				    """
-}
-
                     }
                 }
             }
