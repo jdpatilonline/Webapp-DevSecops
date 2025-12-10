@@ -123,11 +123,11 @@ stage('DAST - OWASP ZAP Scanner') {
     steps {
         script {
             // Create the report directory if it doesn't exist
-            sh "mkdir -p \$(pwd)/zap_report"
+           // sh "mkdir -p \$(pwd)/zap_report"
             echo "Target URL: ${params.TARGET_URL}"
 
             // Create the configuration directory and ensure it's writable
-            sh "mkdir -p \$(pwd)/zap_config"
+         //   sh "mkdir -p \$(pwd)/zap_config"
             
             // Set appropriate permissions for the configuration directory (without using chmod)
             // Ensure this directory is created with proper permissions during setup
@@ -136,14 +136,14 @@ stage('DAST - OWASP ZAP Scanner') {
             // Run ZAP scan with correct permissions and volume mounting
 			sh """
 			docker run --rm \
-			    -v /tmp/zap_report:/zap/wrk/ \
-			    -v /tmp/zap_config:/home/zap \
-			    --user \$(id -u):\$(id -g) \
-			    -t zaproxy/zap-stable zap-baseline.py \
+			    -v $(pwd)/zap_report:/zap/wrk/ \
+			    -t zaproxy/zap-stable \
+			    zap-baseline.py \
 			    -t ${params.TARGET_URL} \
 			    -r /zap/wrk/OWASP-ZAP-report.html \
 			    -x /zap/wrk/OWASP-ZAP-report.xml || true
 			"""
+
 
         }
     }
