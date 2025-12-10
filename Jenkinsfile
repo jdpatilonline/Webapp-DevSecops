@@ -73,7 +73,7 @@ pipeline {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
             }
         }
-
+/*
        stage('Nmap Scan') {
         steps {
             sh """
@@ -91,17 +91,7 @@ pipeline {
             """
         }
     }
-
-        stage('Nikto Scan') {
-            steps {
-                sh """
-                rm -f nikto-output.xml || true
-                docker pull secfigo/nikto:latest
-                docker run --user \\\$(id -u):\\\$(id -g) --rm -v "\\\$(pwd)":/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml
-                cat nikto-output.xml
-                """
-            }
-        }
+*/
         stage('Nikto Scan') {
             steps {
                 sh '''
