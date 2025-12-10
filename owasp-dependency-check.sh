@@ -1,13 +1,13 @@
 #!/bin/sh
-
+#
 # --- Configuration ---
 echo "Setting up persistent directories..."
-
+#
 # Define persistent directories
 OWASPDC_DIRECTORY="$HOME/OWASP-Dependency-Check"
 DATA_DIRECTORY="$OWASPDC_DIRECTORY/data"
 REPORT_DIRECTORY="$OWASPDC_DIRECTORY/reports"
-
+#
 # 1. Directory Check and Setup
 if [ ! -d "$DATA_DIRECTORY" ]; then
     echo "Persistent data directory not found. Creating $DATA_DIRECTORY"
