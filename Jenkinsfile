@@ -169,7 +169,7 @@ pipeline {
 				    // Use triple double-quotes to allow Groovy interpolation
 					sh """
 					        curl -k -X POST "http://127.0.0.1:8000/api/v2/import-scan/" \\
-					          -H "Authorization: Token ****" \\
+					          -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \\
 					          -F engagement_name="${params.DEFECTDOJO_ENGAGEMENT}" \\
 					          -F lead="admin" \\                           // Use 'lead_name'
 					          -F scan_date="${scanDateTime}" \\            // Use 'scan_date_time' and Groovy variable
