@@ -12,7 +12,7 @@ pipeline {
 
     environment {
         DEFECTDOJO_URL = 'http://127.0.0.1:8000'
-        DEFECTDOJO_API_KEY = credentials('c8a653ab79240e2e3af10fd7ad78113ccf7c35fa') // Jenkins credentials
+        DEFECTDOJO_API_KEY = credentials('defectdojo') // Jenkins credentials
         BUILD_ID = "${env.BUILD_NUMBER}"
         COMMIT_HASH = "${env.GIT_COMMIT ?: 'unknown'}"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'main'}"
