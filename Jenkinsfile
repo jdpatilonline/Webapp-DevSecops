@@ -119,34 +119,39 @@ pipeline {
             }
         }
 */
-stage('DAST - OWASP ZAP Scanner') {
-    steps {
-        script {
-            // Create the report directory if it doesn't exist
-           // sh "mkdir -p \$(pwd)/zap_report"
-            echo "Target URL: ${params.TARGET_URL}"
-
-            // Create the configuration directory and ensure it's writable
-         //   sh "mkdir -p \$(pwd)/zap_config"
-            
-            // Set appropriate permissions for the configuration directory (without using chmod)
-            // Ensure this directory is created with proper permissions during setup
-           // sh "touch \$(pwd)/zap_config/zap.yaml"  // This will create the file in the directory
-
-            // Run ZAP scan with correct permissions and volume mounting
-			sh """
-			docker run --rm \
-			    -v $(pwd)/zap_report:/zap/wrk/ \
-			    -t zaproxy/zap-stable \
-			    zap-baseline.py \
-			    -t ${params.TARGET_URL} \
-			    -r /zap/wrk/OWASP-ZAP-report.html \
-			    -x /zap/wrk/OWASP-ZAP-report.xml || true
-			"""
+stage('Security Scan (OWASP ZAP)') {
+    agent {
+        docker {
+            image 'owasp/zap2docker-stable'
+            // Run as root (-u 0) to ensure write permissions for the report
+            // Map current workspace to /zap/wrk so the report is saved in Jenkins
+            args '-u 0 -v $WORKSPACE:/zap/wrk:rw'
         }
     }
-}
-
+	steps {
+		script {
+		        	echo "Starting ZAP Scan..."
+		            
+		            // Run the baseline scan
+		            // -t: Target URL
+		            // -r: Report name (saved to /zap/wrk/ which maps to workspace)
+		            // -I: Ignore warnings (fail only on errors)
+		            // returnStatus: true ensures the pipeline captures the exit code instead of crashing
+		            def exitCode = sh(
+		                script: "zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html", 
+		                returnStatus: true
+		            )
+		            
+		            echo "ZAP Scan finished with exit code: ${exitCode}"
+		
+		            // Optional: Mark build UNSTABLE if issues are found (Exit code 1 or 2)
+		            if (exitCode != 0) {
+		                currentBuild.result = 'UNSTABLE'
+		                echo "ZAP detected vulnerabilities. Check the report."
+		            }
+		        }
+		    }
+		}
 
         stage('Upload Reports to DefectDojo') {
             steps {
