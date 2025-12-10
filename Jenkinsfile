@@ -128,7 +128,7 @@ pipeline {
                 ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
                 """
 	*/
-				sh "docker run --rm -v "\\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml"
+				sh """docker run --rm -v "\\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml"""
             }
         }
 
