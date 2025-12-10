@@ -143,10 +143,11 @@ stage('Security Scan (OWASP ZAP)') {
             // 3. check if the report was created to confirm success
             if (fileExists('zap_report.html')) {
                 echo "ZAP Report generated successfully."
+				sh "pwd"
+				sh "cat zap_report.html"
             } else {
                 error "ZAP Report was not generated. Check Docker logs."
             }
-			ls -al "zap_report.html"
         }
     }
 }
