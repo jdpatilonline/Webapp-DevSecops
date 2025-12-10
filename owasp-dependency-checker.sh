@@ -1,32 +1,39 @@
 #!/bin/sh
 
-echo "Setting up persistent directories..."
-DATA_DIRECTORY="/var/lib/jenkins/OWASP-Dependency-Check/data"
-REPORT_DIRECTORY="$WORKSPACE/OWASP-Dependency-Check/reports"
+# --- Configuration ---
+echo "Setting up persistent directories in Jenkins workspace..."
 
+# Use Jenkins workspace instead of /var/lib/jenkins
+OWASPDC_DIRECTORY="$WORKSPACE/OWASP-Dependency-Check"
+DATA_DIRECTORY="$OWASPDC_DIRECTORY/data"
+REPORT_DIRECTORY="$OWASPDC_DIRECTORY/reports"
+
+# Create directories if they don't exist
 mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
 
-# 1. Remove old NVD database and update (using sudo if necessary)
-echo "Removing old NVD database..."
-sudo rm -rf "$DATA_DIRECTORY"  # Use sudo if there are permission issues
+# No need to chmod if ownership is correct in workspace
 
-echo "Updating NVD database..."
-docker run --rm \
-    -u $(id -u):$(id -g) \
-    -v "$DATA_DIRECTORY":/usr/share/dependency-check/data \
-    owasp/dependency-check \
-    --updateonly
+# 2. Database Maintenance — only purge if DB missing
+DB_FILE="$DATA_DIRECTORY/odc.mv.db
 
-# 2. Pull latest Docker image
+if [ ! -f "$DB_FILE" ]; then
+    echo "No NVD database found. Initializing database..."
+    docker run --rm \
+        -u $(id -u):$(id -g) \
+        -v "$DATA_DIRECTORY":/usr/share/dependency-check/data \
+        owasp/dependency-check \
+        --purge
+else
+    echo "Existing NVD database detected. Skipping purge."
+fi
+
+# 3. Pull latest Docker image
 echo "Pulling latest Dependency Check Docker image..."
 docker pull owasp/dependency-check
 
-# 3. Clean old reports
-echo "Cleaning old reports..."
-rm -rf "$REPORT_DIRECTORY"/*
-
-# 4. Run the vulnerability scan, excluding the problematic CVE (if necessary)
+# 4. Run the scan
 echo "--- Running the vulnerability scan ---"
+
 docker run --rm \
     -u $(id -u):$(id -g) \
     -v "$WORKSPACE":/src \
@@ -35,10 +42,11 @@ docker run --rm \
     owasp/dependency-check \
     --scan /src \
     --nvdApiKey "f957fd4e-28e5-4657-b2c2-e60c56e5ceaf" \
-    --excludeCves "CVE-2004-2259" \  # Exclude problematic CVE temporarily
-    --format ALL \
+    --format "ALL" \
     --project "My OWASP Dependency Check Project" \
     --out /report
+    # Optional suppression:
+    # --suppression "/src/security/dependency-check-suppression.xml"
 
 echo "--- Scan Finished ---"
 echo "Reports available at $REPORT_DIRECTORY"
