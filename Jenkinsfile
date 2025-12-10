@@ -125,7 +125,7 @@ stage('Security Scan (OWASP ZAP)') {
             echo "Starting ZAP Scan..."
             
             // 1. Pull the image manually to ensure it exists
-            sh 'docker pull owasp/zap2docker-stable'
+            sh 'docker pull zaproxy/zap-stable'
 
             // 2. Run the container using standard Docker CLI
             // --rm: remove container after it finishes
