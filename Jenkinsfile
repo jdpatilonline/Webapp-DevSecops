@@ -98,7 +98,7 @@ pipeline {
 			sh 'docker pull secfigo/nikto:latest'
 			sh '#docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h Webserver_ip -p 8081 -output /report/nikto-output.xml'
 			sh '#docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml'
-			sh 'cat nikto-output.xml'
+			sh '#cat nikto-output.xml'
 		    sh '''
 			  # Use bash to ensure compatibility with $(pwd) and other Bash features
 			  /bin/bash -c "
