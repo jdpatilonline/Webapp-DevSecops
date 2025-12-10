@@ -82,7 +82,7 @@ pipeline {
             steps {
                 sh """
                 rm -f nmap.result || true
-                docker run --rm -v "\\$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
+                docker run --rm -v "\\\$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
                 cat nmap.result
                 """
             }
@@ -93,7 +93,7 @@ pipeline {
                 sh """
                 rm -f nikto-output.xml || true
                 docker pull secfigo/nikto:latest
-                docker run --user \\$(id -u):\\$(id -g) --rm -v "\\$(pwd)":/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
+                docker run --user \\\$(id -u):\\\$(id -g) --rm -v "\\\$(pwd)":/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
                 cat nikto-output.xml
                 """
             }
@@ -113,7 +113,7 @@ pipeline {
             steps {
                 sh """
                 rm -f \$ZAP_REPORT_XML || true
-                docker run --rm -v "\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
+                docker run --rm -v "\\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
                     zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml
                 ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
                 """
