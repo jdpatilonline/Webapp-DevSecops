@@ -155,10 +155,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            // Removed archiveArtifacts
-        }
-    }
 }
