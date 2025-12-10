@@ -171,8 +171,8 @@ pipeline {
 					        curl -k -X POST "http://127.0.0.1:8000/api/v2/import-scan/" \\
 					          -H "Authorization: Token ****" \\
 					          -F engagement_name="${params.DEFECTDOJO_ENGAGEMENT}" \\
-					          -F **lead_name**="admin" \\                           // Use 'lead_name'
-					          -F **scan_date_time**="${scanDateTime}" \\            // Use 'scan_date_time' and Groovy variable
+					          -F lead="admin" \\                           // Use 'lead_name'
+					          -F scan_date="${scanDateTime}" \\            // Use 'scan_date_time' and Groovy variable
 					          -F build_id=${BUILD_ID} \\
 					          -F scan_type=${r.type} \\
 					          -F file=@${r.file} \\
