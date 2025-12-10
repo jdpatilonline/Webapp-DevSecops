@@ -5,7 +5,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com/', description: 'Target URL for OWASP ZAP and SSL scans')
+        string(name: 'TARGET_URL', defaultValue: 'testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
         string(name: 'DEFECTDOJO_PRODUCT', defaultValue: 'WebApp', description: 'DefectDojo Product Name')
         string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
     }
@@ -97,7 +97,7 @@ pipeline {
                 sh """
                 rm -f nikto-output.xml || true
                 docker pull secfigo/nikto:latest
-                docker run --user \\\$(id -u):\\\$(id -g) --rm -v "\\\$(pwd)":/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
+                docker run --user \\\$(id -u):\\\$(id -g) --rm -v "\\\$(pwd)":/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml
                 cat nikto-output.xml
                 """
             }
