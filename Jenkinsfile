@@ -99,9 +99,10 @@ pipeline {
 	                    // Pull the latest Nikto Docker image
 	                    sh 'docker pull secfigo/nikto:latest'
 	                    // Run the Nikto scan using the dynamic parameter TARGET_URL
-	                    sh 'docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h "testphp.vulnweb.com" -output /report/nikto-output.xml'
+						echo 'Target URL: ${params.TARGET_URL}'
+	 //                   sh 'docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h "testphp.vulnweb.com" -output /report/nikto-output.xml'
 	                    // Display the Nikto output
-	                    sh 'cat /report/nikto-output.xml'
+	//                    sh 'cat /report/nikto-output.xml'
 					    }
 					}    
 		  
