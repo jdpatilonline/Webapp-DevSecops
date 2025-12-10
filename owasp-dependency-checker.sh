@@ -6,9 +6,9 @@ REPORT_DIRECTORY="$WORKSPACE/OWASP-Dependency-Check/reports"
 
 mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
 
-# 1. Remove old NVD database and update
+# 1. Remove old NVD database and update (using sudo if necessary)
 echo "Removing old NVD database..."
-rm -rf "$DATA_DIRECTORY"
+sudo rm -rf "$DATA_DIRECTORY"  # Use sudo if there are permission issues
 
 echo "Updating NVD database..."
 docker run --rm \
