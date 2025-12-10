@@ -48,10 +48,10 @@ pipeline {
                 echo "Downloading OWASP Dependency-Check script..."
                 wget -O owasp-dependency-checker.sh https://raw.githubusercontent.com/jdpatilonline/Webapp-DevSecops/main/owasp-dependency-checker.sh
                 chmod +x owasp-dependency-checker.sh
-        
+
                 echo "Running OWASP Dependency-Check..."
                 ./owasp-dependency-checker.sh
-        
+
                 echo "Dependency-Check reports:"
                 ls -lh /var/lib/jenkins/OWASP-Dependency-Check/reports/
                 '''
@@ -80,22 +80,22 @@ pipeline {
 
         stage('Nmap Scan') {
             steps {
-                sh """
+                sh '''
                 rm -f nmap.result || true
-                docker run --rm -v "\\$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
+                docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
                 cat nmap.result
-                """
+                '''
             }
         }
 
         stage('Nikto Scan') {
             steps {
-                sh """
+                sh '''
                 rm -f nikto-output.xml || true
                 docker pull secfigo/nikto:latest
-                docker run --user \\$(id -u):\\$(id -g) --rm -v "\\$(pwd)":/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
+                docker run --user $(id -u):$(id -g) --rm -v "$(pwd)":/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
                 cat nikto-output.xml
-                """
+                '''
             }
         }
 
@@ -113,7 +113,7 @@ pipeline {
             steps {
                 sh """
                 rm -f ${ZAP_REPORT_XML} || true
-                docker run --rm -v "\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
+                docker run --rm -v "$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
                     zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml
                 ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
                 """
@@ -123,26 +123,39 @@ pipeline {
         stage('Upload Reports to DefectDojo') {
             steps {
                 script {
-                    def reports = [
-                        [file: "${REPORT_DIRECTORY}/dependency-check-report.xml", type: "Dependency Check Scan", min_sev: "Medium"],
-                        [file: "${WORKSPACE}/nmap.result", type: "Nmap Scan", min_sev: "Medium"],
-                        [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan", min_sev: "High"],
-                        [file: "${ZAP_REPORT_XML}", type: "OWASP ZAP Scan", min_sev: "Medium"]
+                    def scanMap = [
+                        'dependency-check-report.xml': [type: 'Dependency Check Scan', min_sev: 'Medium'],
+                        'nmap.result': [type: 'Nmap Scan', min_sev: 'Medium'],
+                        'sslyze-output.json': [type: 'SSL Labs Scan', min_sev: 'High'],
+                        'OWASP-ZAP-report.xml': [type: 'OWASP ZAP Scan', min_sev: 'Medium'],
+                        'nikto-output.xml': [type: 'Nikto Scan', min_sev: 'Medium']
                     ]
 
-                    for (r in reports) {
+                    def reportFiles = findFiles(glob: '**/*.{xml,json,result}')
+
+                    for (f in reportFiles) {
+                        def fileName = f.name
+                        if (!scanMap.containsKey(fileName)) {
+                            echo "Skipping unknown report file: ${fileName}"
+                            continue
+                        }
+
+                        def scanType = scanMap[fileName].type
+                        def minSev = scanMap[fileName].min_sev
+                        echo "Uploading ${fileName} as ${scanType}..."
+
                         sh """
                         curl -k -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \\
                             -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \\
                             -F "engagement_name=${params.DEFECTDOJO_ENGAGEMENT}" \\
                             -F "build_id=${BUILD_ID}" \\
-                            -F "scan_type=${r.type}" \\
-                            -F "file=@${r.file}" \\
+                            -F "scan_type=${scanType}" \\
+                            -F "file=@${f.path}" \\
                             -F "active=false" \\
                             -F "verified=true" \\
                             -F "close_old_findings=true" \\
                             -F "deduplication_on_engagement=true" \\
-                            -F "minimum_severity=${r.min_sev}" \\
+                            -F "minimum_severity=${minSev}" \\
                             -F "create_finding_groups_for_all_findings=true" \\
                             -F "commit_hash=${COMMIT_HASH}" \\
                             -F "branch_tag=${BRANCH_NAME}" \\
