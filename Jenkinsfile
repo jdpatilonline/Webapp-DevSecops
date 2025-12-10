@@ -146,6 +146,7 @@ pipeline {
                     sh "chmod -R 777 \$(pwd)/zap_report"
 
                     // Run ZAP scan with correct permissions and volume mounting
+					sh ""docker run -t zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -r "OWASP-ZAP-report.html" -x "OWASP-ZAP-report.xml" || true  """
                     sh """
                         docker run --rm -v \$(pwd)/zap_report:/zap/wrk/ --user \$(id -u):\$(id -g) \
                         -t zaproxy/zap-stable zap-baseline.py \
