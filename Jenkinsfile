@@ -7,7 +7,7 @@ pipeline {
     parameters {
         string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
         string(name: 'DEFECTDOJO_PRODUCT', defaultValue: 'WebApp', description: 'DefectDojo Product Name')
-        string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
+  //      string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
 	//	string(name: 'DEFECTDOJO_LEAD', defaultValue: 'admin', description: 'DefectDojo Lead Name')
     }
 
@@ -15,6 +15,7 @@ pipeline {
         DEFECTDOJO_URL = 'http://127.0.0.1:8000'
        // DEFECTDOJO_API_KEY = credentials('defectdojo') // Jenkins credentials
 	    DEFECTDOJO_API_KEY = "b218b4dd917bdb4e9b86237bc8ce2891dcff147b" // Jenkins credentials
+		DEFECTDOJO_ENGAGEMENT = "DAST pipeline"						// DefectDojo Engagement Name
         BUILD_ID = "${env.BUILD_NUMBER}"
         COMMIT_HASH = "${env.GIT_COMMIT ?: 'unknown'}"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'main'}"
@@ -170,7 +171,7 @@ pipeline {
 					sh """
 					        curl -k -X POST "http://127.0.0.1:8000/api/v2/import-scan/" \\
 					          -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \\
-					          -F engagement_name="${params.DEFECTDOJO_ENGAGEMENT}" \\
+					          -F engagement_name="${DEFECTDOJO_ENGAGEMENT}" \\
 					          -F lead="admin" \\                           // Use 'lead_name'
 					          -F scan_date="${scanDateTime}" \\            // Use 'scan_date_time' and Groovy variable
 					          -F build_id=${BUILD_ID} \\
