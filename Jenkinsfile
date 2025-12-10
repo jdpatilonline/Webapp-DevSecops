@@ -158,9 +158,7 @@ pipeline {
 
     post {
         always {
-            node {
-                archiveArtifacts artifacts: 'OWASP-Dependency-Check/reports/*, OWASP-ZAP-report.*', fingerprint: true
-            }
+            // Removed archiveArtifacts
         }
     }
 }
