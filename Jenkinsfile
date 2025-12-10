@@ -143,8 +143,6 @@ stage('DAST - OWASP ZAP Scanner') {
 			    -r /zap/wrk/OWASP-ZAP-report.html \
 			    -x /zap/wrk/OWASP-ZAP-report.xml || true
 			"""
-
-
         }
     }
 }
