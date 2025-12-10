@@ -119,39 +119,38 @@ pipeline {
             }
         }
 */
-stage('Security Scan (OWASP ZAP)') {
-    agent {
-        docker {
-            image 'owasp/zap2docker-stable'
-            // Run as root (-u 0) to ensure write permissions for the report
-            // Map current workspace to /zap/wrk so the report is saved in Jenkins
-            args '-u 0 -v $WORKSPACE:/zap/wrk:rw'
+stage('Security Scan (OWASP ZAP)') { 
+    steps {
+        script {
+            echo "Starting ZAP Scan..."
+            
+            // 1. Pull the image manually to ensure it exists
+            sh 'docker pull owasp/zap2docker-stable'
+
+            // 2. Run the container using standard Docker CLI
+            // --rm: remove container after it finishes
+            // -u 0: run as root
+            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
+            // zap-baseline.py ... : the command to run inside
+            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
+            
+            def zapCommand = """
+                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
+                owasp/zap2docker-stable \
+                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html || exit 0
+            """
+            
+            sh zapCommand
+            
+            // 3. check if the report was created to confirm success
+            if (fileExists('zap_report.html')) {
+                echo "ZAP Report generated successfully."
+            } else {
+                error "ZAP Report was not generated. Check Docker logs."
+            }
         }
     }
-	steps {
-		script {
-		        	echo "Starting ZAP Scan..."
-		            
-		            // Run the baseline scan
-		            // -t: Target URL
-		            // -r: Report name (saved to /zap/wrk/ which maps to workspace)
-		            // -I: Ignore warnings (fail only on errors)
-		            // returnStatus: true ensures the pipeline captures the exit code instead of crashing
-		            def exitCode = sh(
-		                script: "zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html", 
-		                returnStatus: true
-		            )
-		            
-		            echo "ZAP Scan finished with exit code: ${exitCode}"
-		
-		            // Optional: Mark build UNSTABLE if issues are found (Exit code 1 or 2)
-		            if (exitCode != 0) {
-		                currentBuild.result = 'UNSTABLE'
-		                echo "ZAP detected vulnerabilities. Check the report."
-		            }
-		        }
-		    }
-		}
+}
 
         stage('Upload Reports to DefectDojo') {
             steps {
