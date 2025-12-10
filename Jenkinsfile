@@ -5,14 +5,14 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com/', description: 'Target URL for OWASP ZAP and SSL scans')    // Target URL
+        string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com/', description: 'Target URL for OWASP ZAP and SSL scans')
         string(name: 'DEFECTDOJO_PRODUCT', defaultValue: 'WebApp', description: 'DefectDojo Product Name')
         string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
     }
 
     environment {
-        DEFECTDOJO_URL = 'http://127.0.0.1:8000'    // Defect Dojo URL
-        DEFECTDOJO_API_KEY = credentials('defectdojo-api-key') // Jenkins credentials
+        DEFECTDOJO_URL = 'http://127.0.0.1:8000'
+        DEFECTDOJO_API_KEY = credentials('c8a653ab79240e2e3af10fd7ad78113ccf7c35fa') // Jenkins credentials
         BUILD_ID = "${env.BUILD_NUMBER}"
         COMMIT_HASH = "${env.GIT_COMMIT ?: 'unknown'}"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'main'}"
@@ -34,11 +34,11 @@ pipeline {
 
         stage('Check-Secrets - Trufflehog') {
             steps {
-                sh """
+                sh '''
                 rm -f trufflehog || true
                 docker run --rm gesellix/trufflehog --json https://github.com/jdpatilonline/Webdemo_devsecops.git > trufflehog
                 cat trufflehog
-                """
+                '''
             }
         }
 
@@ -46,14 +46,14 @@ pipeline {
             steps {
                 sh """
                 mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
-                docker run --rm -u \$(id -u):\$(id -g) -v "$DATA_DIRECTORY":/usr/share/dependency-check/data owasp/dependency-check --updateonly
+                docker run --rm -u \\$(id -u):\\$(id -g) -v "$DATA_DIRECTORY":/usr/share/dependency-check/data owasp/dependency-check --updateonly
                 docker pull owasp/dependency-check
                 rm -rf "$REPORT_DIRECTORY"/*
-                docker run --rm -u \$(id -u):\$(id -g) -v "$WORKSPACE":/src -v "$DATA_DIRECTORY":/usr/share/dependency-check/data -v "$REPORT_DIRECTORY":/report owasp/dependency-check \
-                    --scan /src \
-                    --nvdApiKey "f957fd4e-28e5-4657-b2c2-e60c56e5ceaf" \
-                    --format ALL \
-                    --project "My OWASP Dependency Check Project" \
+                docker run --rm -u \\$(id -u):\\$(id -g) -v "$WORKSPACE":/src -v "$DATA_DIRECTORY":/usr/share/dependency-check/data -v "$REPORT_DIRECTORY":/report owasp/dependency-check \\
+                    --scan /src \\
+                    --nvdApiKey "f957fd4e-28e5-4657-b2c2-e60c56e5ceaf" \\
+                    --format ALL \\
+                    --project "My OWASP Dependency Check Project" \\
                     --out /report
                 """
             }
@@ -83,7 +83,7 @@ pipeline {
             steps {
                 sh """
                 rm -f nmap.result || true
-                docker run --rm -v "$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
+                docker run --rm -v "\\$(pwd)":/data uzyexe/nmap -sS -sV -A -oX nmap.result 192.168.10.139
                 cat nmap.result
                 """
             }
@@ -94,7 +94,7 @@ pipeline {
                 sh """
                 rm -f nikto-output.xml || true
                 docker pull secfigo/nikto:latest
-                docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
+                docker run --user \\$(id -u):\\$(id -g) --rm -v "\\$(pwd)":/report -i secfigo/nikto:latest -h 192.168.10.139 -p 8081 -output /report/nikto-output.xml
                 cat nikto-output.xml
                 """
             }
@@ -114,7 +114,7 @@ pipeline {
             steps {
                 sh """
                 rm -f ${ZAP_REPORT_XML} || true
-                docker run --rm -v \$(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable \
+                docker run --rm -v "\\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
                     zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml
                 ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
                 """
