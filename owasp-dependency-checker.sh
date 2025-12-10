@@ -14,7 +14,7 @@ mkdir -p "$DATA_DIRECTORY" "$REPORT_DIRECTORY"
 # No need to chmod if ownership is correct in workspace
 
 # 2. Database Maintenance — only purge if DB missing
-DB_FILE="$DATA_DIRECTORY/odc.mv.db
+DB_FILE="$DATA_DIRECTORY/odc.mv.db"
 
 if [ ! -f "$DB_FILE" ]; then
     echo "No NVD database found. Initializing database..."
