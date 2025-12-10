@@ -14,7 +14,7 @@ stages {
 	      	     }
 	                          	}
 
-	stage ('Check-Secrets') {
+	stage ('Check-Secrets - trufflehog') {
 	      steps {
 		sh 'whoami'
 		sh 'pwd'
@@ -24,7 +24,7 @@ stages {
 		}
 	    			}
 
-	stage ('SCA-Source Composition Analysis') {
+	stage ('SCA-Owasp-Dependency-checker') {
 	      steps {
 	         sh 'rm owasp* || true'
 	         sh 'wget "https://raw.githubusercontent.com/jdpatilonline/Webapp-DevSecops/main/owasp-dependency-checker.sh" '
@@ -35,7 +35,7 @@ stages {
 		}
 	    					}
 
-	stage ('SAST') {
+	stage ('SAST - SonarQube') {
 		steps {
 		withSonarQubeEnv('sonar') {
 				sh 'pwd' 
@@ -82,16 +82,16 @@ stages {
 			sh '#sudo apt install -y python-pip'
 			sh 'pip install sslyze==1.4.2'
 			sh '#python -m sslyze --regular Webserver_ip:8081 --json_out sslyze-output.json'
-			sh 'python -m sslyze --regular 192.168.10.139:8081 --json_out sslyze-output.json'
+			sh 'python -m sslyze --regular http://testphp.vulnweb.com/ --json_out sslyze-output.json'
 			sh 'cat sslyze-output.json'
 		    }
 	    			}
 
-	stage ('DAST') {
+	stage ('DAST- OWASP-Zap Scanner') {
 		steps {
 			sh 'rm  Zap_report.xml || true'	
-			sh '#docker run -t zaproxy/zap-stable zap-baseline.py -t http://testphp.vulnweb.com/ || true'
-			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://192.168.10.139 || true'
+			sh 'docker run -t zaproxy/zap-stable zap-baseline.py -t http://testphp.vulnweb.com/ || true'
+			sh '#docker run -t zaproxy/zap-stable zap-baseline.py -t http://192.168.10.139:8081/ || true'
 		     }
 			}  	
 
