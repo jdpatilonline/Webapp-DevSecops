@@ -95,13 +95,13 @@ pipeline {
 	  stages {
 	        stage('Nikto Scan') {
 	            steps {
-	                    # Clean up old output file if it exists
+	                    // Clean up old output file if it exists
 	                    sh 'rm -f nikto-output.xml || true'
-	                    # Pull the latest Nikto Docker image
+	                    // Pull the latest Nikto Docker image
 	                    sh 'docker pull secfigo/nikto:latest'
-	                    # Run the Nikto scan using the dynamic parameter TARGET_URL
+	                    // Run the Nikto scan using the dynamic parameter TARGET_URL
 	                    sh 'docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -p 443 -output /report/nikto-output.xml'
-	                    # Display the Nikto output
+	                    // Display the Nikto output
 	                    sh 'cat /report/nikto-output.xml'
 					    }
 					}    
