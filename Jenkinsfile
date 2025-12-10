@@ -27,9 +27,9 @@ stages {
 	stage ('SCA-Source Composition Analysis') {
 	      steps {
 	         sh 'rm owasp* || true'
-	         sh 'wget "https://github.com/jdpatilonline/Webapp-DevSecops/blob/main/owasp-dependency-check_old.sh" '
-	         sh 'chmod +x owasp-dependency-check_old.sh'
-	         sh 'bash owasp-dependency-check_old.sh'
+	         sh 'wget "https://github.com/jdpatilonline/Webapp-DevSecops/blob/main/owasp-dependency-check.sh" '
+	         sh 'chmod +x owasp-dependency-check.sh'
+	         sh 'bash owasp-dependency-check.sh'
 	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
 	        
 		}
