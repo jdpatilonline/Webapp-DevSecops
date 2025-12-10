@@ -54,7 +54,8 @@ pipeline {
     	         sh 'bash owasp-dependency-checker.sh'
                  sh 'ls -lh /var/lib/jenkins/OWASP-Dependency-Check/reports/'
     	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
-    		}
+    		     }
+            }   
         
         stage('SAST - SonarQube') {
             steps {
