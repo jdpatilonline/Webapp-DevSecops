@@ -109,17 +109,21 @@ pipeline {
             }
         }
 
-        stage('DAST - OWASP ZAP Scanner') {
-            steps {
-                sh """
-                rm -f \$ZAP_REPORT_XML || true
-                docker run --rm -v "$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
-                    zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml
-                ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
-                """
-            }
+      stage('DAST - OWASP ZAP Scanner') {
+        steps {
+            sh """
+            # Remove any existing report before starting
+            rm -f \$ZAP_REPORT_XML || true
+            
+            # Run OWASP ZAP scan using the specified target URL
+            docker run --rm -v "\$(pwd)":/zap/wrk/:rw -t owasp/zap2docker-stable \\
+                zap-baseline.py -t ${params.TARGET_URL} -r /zap/wrk/OWASP-ZAP-report.html -x /zap/wrk/OWASP-ZAP-report.xml
+            
+            # List the generated report files
+            ls -lh ${WORKSPACE}/OWASP-ZAP-report.*
+            """
         }
-
+    }
         stage('Upload Reports to DefectDojo') {
             steps {
                 script {
