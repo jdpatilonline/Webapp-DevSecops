@@ -136,7 +136,7 @@ stage('Security Scan (OWASP ZAP)') {
             
             def zapCommand = """
                 docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
-                owasp/zap2docker-stable \
+                zaproxy/zap-stable \
                 zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html || exit 0
             """
             
