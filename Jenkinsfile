@@ -83,7 +83,7 @@ pipeline {
             DOCKER_DIR=\$(pwd)
             
 			def targetHost = sh(script: "echo ${params.TARGET_URL} | sed 's|^http[s]*://||'", returnStdout: true).trim()
-            echo "Target: $targetHost"
+            echo "Target: ${targetHost}"
 			# Run the Nmap scan with the provided target IP
             docker run --rm -v \${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.xml ${targetHost}
 		    # Output the results of the scan
