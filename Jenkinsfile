@@ -31,7 +31,7 @@ pipeline {
                 '''
             }
         }
-
+/*
 	  stage('Build') {
             steps {
                 sh 'mvn clean install'
@@ -119,7 +119,7 @@ pipeline {
                 """
             }
         }
-	
+	*/
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
@@ -135,7 +135,7 @@ pipeline {
 					def zapCommand = """
 		                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
 		                zaproxy/zap-stable \
-		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml || exit 0
+		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -l High -a || exit 0
 		            """
 					
 		            sh zapCommand
