@@ -37,7 +37,7 @@ pipeline {
                 sh 'mvn clean install'
 		            }
 		        }
-      
+  /*    
 		stage('Check-Secrets - Trufflehog') {
             steps {
                 sh '''
@@ -59,7 +59,7 @@ pipeline {
     	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
     		     }
             }   
-       
+       */
 	      stage('SAST - SonarQube') {
 		    steps {
 		        withSonarQubeEnv('sonar') {
@@ -67,7 +67,7 @@ pipeline {
 				        }
 				    }
 				}
-
+/*
         stage('WebApp Deployment - Tomcat') {
             steps {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
