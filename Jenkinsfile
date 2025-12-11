@@ -101,11 +101,11 @@ pipeline {
 				  // Pull the latest Nikto Docker image
 	              sh 'docker pull secfigo/nikto:latest'
 	              
-				  // Run the Nikto scan using the dynamic parameter TARGET_URL
-				  echo "Target URL: ${params.TARGET_URL}"
-	           //   sh "docker run --rm -v ${WORKSPACE}:/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output nikto-output.xml"
-	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive -Tuning 1"
-				   // Display the Nikto output
+				// Run the Nikto scan using the dynamic parameter TARGET_URL
+				   echo "Target URL: ${params.TARGET_URL}"
+	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive"
+				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive -Tuning 1"
+				// Display the Nikto output
 	                sh 'cat nikto-output.xml'
 					    }
 					}    
@@ -130,12 +130,14 @@ pipeline {
 		            // -u 0: run as root
 		            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
 		            // zap-baseline.py ... : the command to run inside
-		            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)            
+		            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
+					// -l <level>: Set the scan level (Low, Medium, High). For a more comprehensive scan, use High. 
+					// -a: This flag enables active scanning
 		            echo "Starting ZAP Scan..."
 					def zapCommand = """
 		                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
 		                zaproxy/zap-stable \
-		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -l High -a || exit 0
+		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -l Medium -a || exit 0
 		            """
 					
 		            sh zapCommand
