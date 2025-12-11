@@ -160,7 +160,7 @@ pipeline {
                         [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan"],
                         [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan"],
 						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
-                        [file: "${WORKSPACE}/zap_report.html", type: "OWASP ZAP Scan"]
+                        [file: "${WORKSPACE}/zap_report.html", type: "ZAP Scan"]
                     ]
 				 
 					 // Iterate over each report in the array
