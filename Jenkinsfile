@@ -31,7 +31,7 @@ pipeline {
                 '''
             }
         }
-/*
+
 	  stage('Build') {
             steps {
                 sh 'mvn clean install'
@@ -119,7 +119,7 @@ pipeline {
                 """
             }
         }
-	*/
+	
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
