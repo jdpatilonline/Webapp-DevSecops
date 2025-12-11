@@ -9,15 +9,16 @@ pipeline {
     }
 
     environment {
+	 // Defect Dojo Config
         DEFECTDOJO_URL = 'https://demo.defectdojo.org/api/v2/import-scan/'
      // DEFECTDOJO_TOKEN = credentials('defectdojo') // Jenkins credentials
         DEFECTDOJO_TOKEN = "548afd6fab3bea9794a41b31da0e9404f733e222"
         ENGAGEMENT_NAME = "DAST_pipeline_2"
         PRODUCT_TYPE_NAME = "Research and Development"
         PRODUCT_NAME = "WebApp"
+	// Owasp Dependency	Config
         DATA_DIRECTORY = "/var/lib/jenkins/OWASP-Dependency-Check/data"
         REPORT_DIRECTORY = "${env.WORKSPACE}/OWASP-Dependency-Check/reports"
-        ZAP_REPORT_XML = "${env.WORKSPACE}/OWASP-ZAP-report.xml"
     }
 
     stages {
@@ -156,10 +157,10 @@ pipeline {
                 script {
                     def reports = [
                         [file: "${REPORT_DIRECTORY}/dependency-check-report.xml", type: "Dependency Check Scan", min_sev: "Medium"],
-                        [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan", min_sev: "Medium"],
+                        [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan"],
                         [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan", min_sev: "High"],
-						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan", min_sev: "Medium"],
-                        [file: "${ZAP_REPORT_XML}", type: "OWASP ZAP Scan", min_sev: "Medium"]
+						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
+                        [file: "${WORKSPACE}/zap_report.html", type: "OWASP ZAP Scan"]
                     ]
 				 
 					 // Iterate over each report in the array
