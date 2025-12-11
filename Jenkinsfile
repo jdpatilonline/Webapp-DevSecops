@@ -162,27 +162,33 @@ pipeline {
                         [file: "${ZAP_REPORT_XML}", type: "OWASP ZAP Scan", min_sev: "Medium"]
                     ]
 				 
-					   // Iterate over each report in the array
+					 // Iterate over each report in the array
                     for (report in reports) {
-                        // Send the curl request to upload the report to DefectDojo
-                        sh """
-                        curl -X "POST" "${DEFECTDOJO_URL}" \
-                          -H "Content-Type: multipart/form-data" \
-                          -H "Authorization: Token ${DEFECTDOJO_TOKEN}" \
-                          -F "engagement_name=${ENGAGEMENT_NAME}" \
-                          -F "file=@${report.file}" \
-                          -F "scan_type=${report.type}" \
-                          -F "product_type_name=${PRODUCT_TYPE_NAME}" \
-                          -F "product_name=${PRODUCT_NAME}" \
-                          -F "minimum_severity=${report.min_sev}"
-                        """
-
-                        // Output a message indicating successful upload
-                        echo "Uploaded ${report.type} from ${report.file} with minimum severity ${report.min_sev}"
+                        // Check if the file exists in the workspace before trying to upload
+                        if (fileExists(report.file)) {
+                            // Send the curl request to upload the report to DefectDojo
+                            sh """
+                            curl -X "POST" "https://demo.defectdojo.org/api/v2/import-scan/" \
+                              -H "Content-Type: multipart/form-data" \
+                              -H "Authorization: Token ${DEFECTDOJO_TOKEN}" \
+                              -F "engagement_name=${ENGAGEMENT_NAME}" \
+                              -F "file=@${report.file}" \
+                              -F "scan_type=${report.type}" \
+                              -F "product_type_name=${PRODUCT_TYPE_NAME}" \
+                              -F "product_name=${PRODUCT_NAME}" \
+                              -F "minimum_severity=${report.min_sev}"
+                            """
+                            // Output a message indicating successful upload
+                            echo "Successfully uploaded ${report.type} from ${report.file} with minimum severity ${report.min_sev}"
+                        } else {
+                            // Log a warning message if the file does not exist
+                            echo "WARNING: File ${report.file} not found. Skipping upload for ${report.type}."
+                        }
                     }
 
 				}
             }
         }
-    }
+
+	}
 }
