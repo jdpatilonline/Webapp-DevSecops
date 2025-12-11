@@ -64,6 +64,7 @@ pipeline {
 		    steps {
 		        withSonarQubeEnv('sonar') {
 		            sh 'mvn clean install sonar:sonar'
+					sh 'echo SAST scan Finished'
 				        }
 				    }
 				}
