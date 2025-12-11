@@ -74,23 +74,24 @@ pipeline {
             }
         }
 */
-       stage('Nmap Scan') {
-        steps {
-            sh """
-            # Clean up old results if present
-            rm -f nmap.result || true
-            # Use absolute path for mounting the volume
-            DOCKER_DIR=\$(pwd)
-            
-			def targetHost = sh(script: "echo ${params.TARGET_URL} | sed 's|^http[s]*://||'", returnStdout: true).trim()
-            echo "Target: ${targetHost}"
-			# Run the Nmap scan with the provided target IP
-            docker run --rm -v \${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.xml ${targetHost}
-		    # Output the results of the scan
-            cat nmap.xml
-            """
-        }
-    }
+		steps {
+		                script {
+		                    // Strip the http:// or https:// prefix from the TARGET_URL
+		                    def targetHost = params.TARGET_URL.replaceFirst("^https?://", "")
+		                    echo "Target: ${targetHost}"
+		                    
+		                    // Create the output directory if it doesn't exist
+		                    sh "mkdir -p ${DOCKER_DIR}"
+		                    
+		                    // Run the Nmap scan with the target host (hostname or IP)
+		                    sh """
+		                    docker run --rm -v ${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.xml ${targetHost}
+		                    """
+		                    
+		                    // Output the results of the scan
+		                    sh "cat ${DOCKER_DIR}/nmap.xml"
+		                }
+		            }
 	/*
 	    stage('Nikto Scan') {
 	        steps {
