@@ -91,7 +91,7 @@ pipeline {
 		                }
 		            }
 		        }
-	/*
+	
 	    stage('Nikto Scan') {
 	        steps {
 		          // Clean up old output file if it exists
@@ -102,13 +102,13 @@ pipeline {
 	              
 				  // Run the Nikto scan using the dynamic parameter TARGET_URL
 				  echo "Target URL: ${params.TARGET_URL}"
-	              sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml"
+	              sh "docker run --rm -v ${WORKSPACE}:/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output nikto-output.xml"
 	               
 				   // Display the Nikto output
 	                sh 'cat /report/nikto-output.xml'
 					    }
 					}    
-		  
+		/*  
         stage('SSL Checks - SSlyze') {
             steps {
                 sh """
