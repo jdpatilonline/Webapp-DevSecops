@@ -74,7 +74,9 @@ pipeline {
             }
         }
 */
-		steps {
+		stages {
+		        stage('Nmap Scan') {
+		            steps {
 		                script {
 		                    // Strip the http:// or https:// prefix from the TARGET_URL
 		                    def targetHost = params.TARGET_URL.replaceFirst("^https?://", "")
@@ -92,6 +94,8 @@ pipeline {
 		                    sh "cat ${DOCKER_DIR}/nmap.xml"
 		                }
 		            }
+		        }
+		    }
 	/*
 	    stage('Nikto Scan') {
 	        steps {
