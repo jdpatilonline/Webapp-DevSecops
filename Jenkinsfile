@@ -10,12 +10,12 @@ pipeline {
 
     environment {
 	 // Defect Dojo Config
-        DEFECTDOJO_URL = 'https://demo.defectdojo.org/api/v2/import-scan/'
-     // DEFECTDOJO_TOKEN = credentials('defectdojo') // Jenkins credentials
+        DEFECTDOJO_URL = "https://demo.defectdojo.org/api/v2/import-scan/"
         DEFECTDOJO_TOKEN = "548afd6fab3bea9794a41b31da0e9404f733e222"
         ENGAGEMENT_NAME = "DAST_pipeline_2"
         PRODUCT_TYPE_NAME = "Research and Development"
         PRODUCT_NAME = "WebApp"
+		
 	// Owasp Dependency	Config
         DATA_DIRECTORY = "/var/lib/jenkins/OWASP-Dependency-Check/data"
         REPORT_DIRECTORY = "${env.WORKSPACE}/OWASP-Dependency-Check/reports"
@@ -31,8 +31,14 @@ pipeline {
                 '''
             }
         }
-/*
-        stage('Check-Secrets - Trufflehog') {
+
+	  stage('Build') {
+            steps {
+                sh 'mvn clean install'
+		            }
+		        }
+      
+		stage('Check-Secrets - Trufflehog') {
             steps {
                 sh '''
                 rm -f trufflehog || true
@@ -53,20 +59,14 @@ pipeline {
     	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
     		     }
             }   
-        
-        stage('SAST - SonarQube') {
-            steps {
-                withSonarQubeEnv('sonar') {
-                    sh '# mvn sonar:sonar'
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
+       
+	      stage('SAST - SonarQube') {
+		    steps {
+		        withSonarQubeEnv('sonar') {
+		            sh 'mvn clean install sonar:sonar'
+				        }
+				    }
+				}
 
         stage('WebApp Deployment - Tomcat') {
             steps {
@@ -91,7 +91,7 @@ pipeline {
 		                }
 		            }
 		        }
-	*/
+	
 	    stage('Nikto Scan') {
 	        steps {
 		          // Clean up old output file if it exists
@@ -108,7 +108,7 @@ pipeline {
 	                sh 'cat nikto-output.xml'
 					    }
 					}    
-		/*  
+		
         stage('SSL Checks - SSlyze') {
             steps {
                 sh """
