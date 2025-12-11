@@ -42,7 +42,7 @@ pipeline {
             steps {
                 sh '''
                 rm -f trufflehog || true
-                docker run --rm gesellix/trufflehog --json https://github.com/jdpatilonline/Webdemo_devsecops.git > trufflehog
+                docker run --rm gesellix/trufflehog --json https://github.com/jdpatilonline/Webapp-DevSecops.git > trufflehog
                 cat trufflehog
                 '''
             }
