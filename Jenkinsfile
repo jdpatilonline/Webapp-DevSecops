@@ -74,8 +74,7 @@ pipeline {
             }
         }
 */
-		stages {
-		        stage('Nmap Scan') {
+		 stage('Nmap Scan') {
 		            steps {
 		                script {
 		                    // Strip the http:// or https:// prefix from the TARGET_URL
@@ -95,7 +94,6 @@ pipeline {
 		                }
 		            }
 		        }
-		    }
 	/*
 	    stage('Nikto Scan') {
 	        steps {
