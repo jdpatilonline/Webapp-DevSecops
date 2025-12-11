@@ -6,19 +6,15 @@ pipeline {
 
     parameters {
         string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
-        string(name: 'DEFECTDOJO_PRODUCT', defaultValue: 'WebApp', description: 'DefectDojo Product Name')
-  //      string(name: 'DEFECTDOJO_ENGAGEMENT', defaultValue: 'DAST pipeline', description: 'DefectDojo Engagement Name')
-	//	string(name: 'DEFECTDOJO_LEAD', defaultValue: 'admin', description: 'DefectDojo Lead Name')
     }
 
     environment {
-        DEFECTDOJO_URL = 'http://127.0.0.1:8000'
-       // DEFECTDOJO_API_KEY = credentials('defectdojo') // Jenkins credentials
-	    DEFECTDOJO_API_KEY = "b218b4dd917bdb4e9b86237bc8ce2891dcff147b" // Jenkins credentials
-		DEFECTDOJO_ENGAGEMENT = "DAST_pipeline"						// DefectDojo Engagement Name
-        BUILD_ID = "${env.BUILD_NUMBER}"
-        COMMIT_HASH = "${env.GIT_COMMIT ?: 'unknown'}"
-        BRANCH_NAME = "${env.BRANCH_NAME ?: 'main'}"
+        DEFECTDOJO_URL = 'https://demo.defectdojo.org/api/v2/import-scan/'
+     // DEFECTDOJO_TOKEN = credentials('defectdojo') // Jenkins credentials
+        DEFECTDOJO_TOKEN = "548afd6fab3bea9794a41b31da0e9404f733e222"
+        ENGAGEMENT_NAME = "DAST_pipeline_2"
+        PRODUCT_TYPE_NAME = "Research and Development"
+        PRODUCT_NAME = "WebApp"
         DATA_DIRECTORY = "/var/lib/jenkins/OWASP-Dependency-Check/data"
         REPORT_DIRECTORY = "${env.WORKSPACE}/OWASP-Dependency-Check/reports"
         ZAP_REPORT_XML = "${env.WORKSPACE}/OWASP-ZAP-report.xml"
@@ -160,37 +156,32 @@ pipeline {
                 script {
                     def reports = [
                         [file: "${REPORT_DIRECTORY}/dependency-check-report.xml", type: "Dependency Check Scan", min_sev: "Medium"],
-                        [file: "${WORKSPACE}/nmap.result", type: "Nmap Scan", min_sev: "Medium"],
+                        [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan", min_sev: "Medium"],
                         [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan", min_sev: "High"],
+						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan", min_sev: "Medium"],
                         [file: "${ZAP_REPORT_XML}", type: "OWASP ZAP Scan", min_sev: "Medium"]
                     ]
-				 	def scanDateTime = new Date().format("yyyy-MM-dd'T'HH:mm:ss") 	
-                    
-					for (r in reports) {
-				    // Use triple double-quotes to allow Groovy interpolation
-					sh """
-					        curl -X POST "http://127.0.0.1:8000/api/v2/import-scan/" \\
-					          -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \\
-					          -F "engagement_name=${DEFECTDOJO_ENGAGEMENT}" \\
-					          -F "lead=admin" \\                        
-					          -F "scan_date=${scanDateTime}" \\         
-					          -F "build_id=${BUILD_ID}" \\
-					          -F scan_type=${r.type} \\
-					          -F file=@${r.file} \\
-					          -F active=false \\
-					          -F verified=true \\
-					          -F close_old_findings=true \\
-					          -F deduplication_on_engagement=true \\
-					          -F minimum_severity=${r.min_sev} \\
-					          -F create_finding_groups_for_all_findings=true \\
-					          -F commit_hash=${COMMIT_HASH} \\
-					          -F branch_tag=${BRANCH_NAME} \\
-					          -F product_type_name="Research and Development" \\
-					          -F product_name=${params.DEFECTDOJO_PRODUCT} \\
-					          -F auto_create_context=true
-					    """
+				 
+					   // Iterate over each report in the array
+                    for (report in reports) {
+                        // Send the curl request to upload the report to DefectDojo
+                        sh """
+                        curl -X "POST" "${DEFECTDOJO_URL}" \
+                          -H "Content-Type: multipart/form-data" \
+                          -H "Authorization: Token ${DEFECTDOJO_TOKEN}" \
+                          -F "engagement_name=${ENGAGEMENT_NAME}" \
+                          -F "file=@${report.file}" \
+                          -F "scan_type=${report.type}" \
+                          -F "product_type_name=${PRODUCT_TYPE_NAME}" \
+                          -F "product_name=${PRODUCT_NAME}" \
+                          -F "minimum_severity=${report.min_sev}"
+                        """
+
+                        // Output a message indicating successful upload
+                        echo "Uploaded ${report.type} from ${report.file} with minimum severity ${report.min_sev}"
                     }
-                }
+
+				}
             }
         }
     }
