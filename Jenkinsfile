@@ -61,7 +61,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage('Build') {
             steps {
                 sh 'mvn clean package'
@@ -73,25 +73,25 @@ pipeline {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
             }
         }
-/*
+*/
        stage('Nmap Scan') {
         steps {
             sh """
             # Clean up old results if present
             rm -f nmap.result || true
-            
             # Use absolute path for mounting the volume
             DOCKER_DIR=\$(pwd)
             
-            # Run the Nmap scan with the provided target IP
-            docker run --rm -v \${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.result ${params.TARGET_URL}
-            
-            # Output the results of the scan
-            cat nmap.result
+			def targetHost = sh(script: "echo ${params.TARGET_URL} | sed 's|^http[s]*://||'", returnStdout: true).trim()
+            echo "Target: $targetHost"
+			# Run the Nmap scan with the provided target IP
+            docker run --rm -v \${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.xml ${targetHost}
+		    # Output the results of the scan
+            cat nmap.xml
             """
         }
     }
-	
+	/*
 	    stage('Nikto Scan') {
 	        steps {
 		          // Clean up old output file if it exists
@@ -118,7 +118,7 @@ pipeline {
                 """
             }
         }
-	*/	
+		
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
@@ -143,7 +143,7 @@ pipeline {
 		            // 3. check if the report was created to confirm success
 		            if (fileExists('zap_report.xml')) {
 		                echo "ZAP Report generated successfully."
-						sh "pwd"
+						sh "ls -al zap_report.xml"
 						sh "cat zap_report.xml"
 		            } else {
 		                error "ZAP Report was not generated. Check Docker logs."
@@ -189,6 +189,6 @@ pipeline {
 				}
             }
         }
-
+*/
 	}
 }
