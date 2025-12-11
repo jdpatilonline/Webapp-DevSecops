@@ -103,9 +103,9 @@ pipeline {
 				  // Run the Nikto scan using the dynamic parameter TARGET_URL
 				  echo "Target URL: ${params.TARGET_URL}"
 	           //   sh "docker run --rm -v ${WORKSPACE}:/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output nikto-output.xml"
-	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml"  
+	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive -Tuning 1"
 				   // Display the Nikto output
-	                sh 'cat nikto-output.xml'
+	                sh 'cat /report/nikto-output.xml'
 					    }
 					}    
 		/*  
