@@ -81,16 +81,13 @@ pipeline {
 		                    def targetHost = params.TARGET_URL.replaceFirst("^https?://", "")
 		                    echo "Target: ${targetHost}"
 		                    
-		                    // Create the output directory if it doesn't exist
-		                    sh "mkdir -p ${DOCKER_DIR}"
-		                    
 		                    // Run the Nmap scan with the target host (hostname or IP)
 		                    sh """
-		                    docker run --rm -v ${DOCKER_DIR}:/data uzyexe/nmap -sS -sV -A -oX /data/nmap.xml ${targetHost}
+		                    docker run --rm -v ${WORKSPACE}:/data uzyexe/nmap -sS -sV -A -oX nmap.xml ${targetHost}
 		                    """
 		                    
 		                    // Output the results of the scan
-		                    sh "cat ${DOCKER_DIR}/nmap.xml"
+		                    sh "cat nmap.xml"
 		                }
 		            }
 		        }
