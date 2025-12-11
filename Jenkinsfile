@@ -156,9 +156,9 @@ pipeline {
             steps {
                 script {
                     def reports = [
-                        [file: "${REPORT_DIRECTORY}/dependency-check-report.xml", type: "Dependency Check Scan", min_sev: "Medium"],
+                        [file: "${REPORT_DIRECTORY}/dependency-check-report.xml", type: "Dependency Check Scan"],
                         [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan"],
-                        [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan", min_sev: "High"],
+                        [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan"],
 						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
                         [file: "${WORKSPACE}/zap_report.html", type: "OWASP ZAP Scan"]
                     ]
@@ -177,7 +177,6 @@ pipeline {
                               -F "scan_type=${report.type}" \
                               -F "product_type_name=${PRODUCT_TYPE_NAME}" \
                               -F "product_name=${PRODUCT_NAME}" \
-                              -F "minimum_severity=${report.min_sev}"
                             """
                             // Output a message indicating successful upload
                             echo "Successfully uploaded ${report.type} from ${report.file} with minimum severity ${report.min_sev}"
