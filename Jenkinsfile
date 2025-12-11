@@ -118,7 +118,7 @@ pipeline {
                 """
             }
         }
-		
+	*/	
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
@@ -134,24 +134,24 @@ pipeline {
 					def zapCommand = """
 		                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
 		                zaproxy/zap-stable \
-		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.html || exit 0
+		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml || exit 0
 		            """
 					
 		            sh zapCommand
 					echo "Scan Finsihed..."
 					
 		            // 3. check if the report was created to confirm success
-		            if (fileExists('zap_report.html')) {
+		            if (fileExists('zap_report.xml')) {
 		                echo "ZAP Report generated successfully."
 						sh "pwd"
-						sh "cat zap_report.html"
+						sh "cat zap_report.xml"
 		            } else {
 		                error "ZAP Report was not generated. Check Docker logs."
 		            }
 		        }
 		    }
 		}
-*/
+
         stage('Upload Reports to DefectDojo') {
             steps {
                 script {
@@ -160,7 +160,7 @@ pipeline {
                         [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan"],
                         [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan"],
 						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
-                        [file: "${WORKSPACE}/zap_report.html", type: "ZAP Scan"]
+                        [file: "${WORKSPACE}/zap_report.xml", type: "ZAP Scan"]
                     ]
 				 
 					 // Iterate over each report in the array
