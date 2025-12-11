@@ -172,7 +172,7 @@ pipeline {
 					        curl -X POST "http://127.0.0.1:8000/api/v2/import-scan/" \\
 					          -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \\
 					          -F "engagement=${DEFECTDOJO_ENGAGEMENT}" \\
-					          -F "lead="admin" \\                        
+					          -F "lead=admin" \\                        
 					          -F "scan_date=${scanDateTime}" \\         
 					          -F "build_id=${BUILD_ID}" \\
 					          -F scan_type=${r.type} \\
