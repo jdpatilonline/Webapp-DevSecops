@@ -105,6 +105,7 @@ pipeline {
 				   echo "Target URL: ${params.TARGET_URL}"
 	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive"
 				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive -Tuning 1"
+
 				// Display the Nikto output
 	                sh 'cat nikto-output.xml'
 					    }
@@ -131,14 +132,12 @@ pipeline {
 		            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
 		            // zap-baseline.py ... : the command to run inside
 		            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
-					// -l <level>: Set the scan level (Low, Medium, High). For a more comprehensive scan, use High. 
 					// -a: This flag enables active scanning
 		            echo "Starting ZAP Scan..."
 					def zapCommand = """
-		                docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw \
-		                zaproxy/zap-stable \
-		                zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -l Medium -a || exit 0
-		            """
+		               # docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -a || exit 0
+						docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -r zap_report.xml -a || exit 0
+						"""
 					
 		            sh zapCommand
 					echo "Scan Finsihed..."
