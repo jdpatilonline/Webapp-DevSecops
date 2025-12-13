@@ -155,9 +155,9 @@ pipeline {
 					// exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
 		            echo "Starting ZAP Scan..."
 					def zapCommand = """
-		                # docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -x zap_report.xml -r zap_report.html || exit 0
-					      docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -x zap_report.xml -r zap_report.html -a || exit 0
-						"""
+		                 #docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -m 15 -a -j -d -x zap_report.xml -r zap_report.html || exit 0
+					      docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -m 60 -a -j -d -x zap_report.xml -r zap_report.html -a || exit 0
+								"""
 					
 		            sh zapCommand
 					echo "Scan Finsihed..."
