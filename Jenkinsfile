@@ -19,6 +19,9 @@ pipeline {
 	// Owasp Dependency	Config
         DATA_DIRECTORY = "/var/lib/jenkins/OWASP-Dependency-Check/data"
         REPORT_DIRECTORY = "${env.WORKSPACE}/OWASP-Dependency-Check/reports"
+
+   // Strip the http:// or https:// prefix from the TARGET_URL
+	  Target_HOST_URL = params.TARGET_URL.replaceFirst("^https?://", "")
     }
 
     stages {
@@ -78,13 +81,10 @@ pipeline {
 		 stage('Nmap Scan') {
 		            steps {
 		                script {
-		                    // Strip the http:// or https:// prefix from the TARGET_URL
-		                    def targetHost = params.TARGET_URL.replaceFirst("^https?://", "")
-		                    echo "Target: ${targetHost}"
-		                    
+							echo "Target URL without http/s: ${Target_HOST_URL}"		
 		                    // Run the Nmap scan with the target host (hostname or IP)
 		                    sh """
-		                    docker run --rm -v ${WORKSPACE}:/data uzyexe/nmap -sS -sV -A -oX nmap.xml ${targetHost}
+		                    docker run --rm -v ${WORKSPACE}:/data uzyexe/nmap -sS -sV -A -oX nmap.xml ${Target_HOST_URL}
 		                    """
 		                    
 		                    // Output the results of the scan
@@ -95,16 +95,14 @@ pipeline {
 	
 	    stage('Nikto Scan') {
 	        steps {
-		          // Clean up old output file if it exists
+		        // Clean up old output file if it exists
 	              sh 'rm -f nikto-output.xml || true'
-	              
-				  // Pull the latest Nikto Docker image
-	              sh 'docker pull secfigo/nikto:latest'
-	              
+	              echo "Target URL without http/s: ${Target_HOST_URL}"	
+				
 				// Run the Nikto scan using the dynamic parameter TARGET_URL
 				   echo "Target URL: ${params.TARGET_URL}"
-	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive"
-				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -output /report/nikto-output.xml -output /report/nikto-output.html "
+	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -output /report/nikto-output.xml -output /report/nikto-output.html "
+				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -output /report/nikto-output.xml -output /report/nikto-output.html "
 
 				// Display the Nikto output
 	                sh 'cat nikto-output.xml'
@@ -113,9 +111,10 @@ pipeline {
 		
         stage('SSL Checks - SSlyze') {
             steps {
+				echo "Target URL without http/s: ${Target_HOST_URL}"	
                 sh """
                 pip install --user sslyze==1.4.2
-                python -m sslyze --regular ${params.TARGET_URL} --json_out sslyze-output.json
+                python -m sslyze --regular ${Target_HOST_URL} --json_out sslyze-output.json
                 cat sslyze-output.json
                 """
             }
