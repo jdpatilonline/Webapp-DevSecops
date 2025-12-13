@@ -92,7 +92,7 @@ pipeline {
                 '''
             }
         }
-		
+/*	
         stage('WebApp Deployment - Tomcat') {
             steps {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
@@ -113,7 +113,7 @@ pipeline {
 		                }
 		            }
 		        }
-	*/
+	
 	    stage('Nikto Scan') {
 	        steps {
 		        // Clean up old output file if it exists
@@ -142,7 +142,7 @@ pipeline {
                 """
             }
         }
-	/*
+	
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
