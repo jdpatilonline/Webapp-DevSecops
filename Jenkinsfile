@@ -79,7 +79,8 @@ pipeline {
 	      stage('SAST - SonarQube') {
 		    steps {
 		        withSonarQubeEnv('sonar') {
-					sh 'docker run -d -p 9000:9000 sonarqube:9.9.6-community'	// Setup sonarqube scanner with sonarqube wih api and other configuration 
+					// Setup sonarqube scanner with sonarqube wih api and other configuration 
+					sh 'docker run -d -p 9000:9000 sonarqube:9.9.6-community'
 		            sh 'mvn clean install sonar:sonar'
 					sh 'echo SAST scan Finished'
 				        }
@@ -91,7 +92,7 @@ pipeline {
                 sh '''
   				  rm -f semgrep-report.json || true
 				  docker run --rm -u 0 -v "$PWD:/src" semgrep/semgrep semgrep scan --config=auto --json --output semgrep-report.json
-                '''
+                  '''
 				 sh "cat semgrep-report.json"
             }
         }
@@ -120,15 +121,14 @@ pipeline {
 	    stage('Nikto Scan') {
 	        steps {
 		        // Clean up old output file if it exists
-	              sh 'rm -f nikto-output.xml || true'
-	              echo "Target URL without http/s: ${Target_HOST_URL}"
+	               sh 'rm -f nikto-output.xml || true'
+	               echo "Target URL without http/s: ${Target_HOST_URL}"
 				
 				// Run the Nikto scan using the dynamic parameter TARGET_URL
 				   echo "Target URL: ${params.TARGET_URL}"
 	            // sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -timeout 10 -output /report/nikto-output.xml "
 	      		  sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x6 -timeout 10 -output /report/nikto-output.xml "
-				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -output /report/nikto-output.xml "
-				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -maxtime 60m -timeout 10 -output /report/nikto-output.html || exit 0"
+				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -timeout 10 -output /report/nikto-output.html "
 			script {	
 				if (fileExists('nikto-output.xml'))
 					{ echo "Report generated successfully."
@@ -152,15 +152,13 @@ pipeline {
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
-		            echo "Dowloading ZAP ..."
-		            // Run the container using standard Docker CLI
 		            // -u 0: run as root
 		            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
 		            // zap-baseline.py ... : the command to run passive scan and zap-full-scan.py to run full scan with -a: This flag enables active scanning 
 					// exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
 		            echo "Starting ZAP Scan..."
 					def zapCommand = """
-		                 #docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -m 60 -j -d -x zap_report.xml -r zap_report.html || exit 0
+		                 #docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -m 120 -j -d -x zap_report.xml -r zap_report.html || exit 0
 					      docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -m 720 -a -j -d -x zap_report.xml -r zap_report.html -a || exit 0
 									"""
 		            sh zapCommand
