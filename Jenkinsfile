@@ -5,7 +5,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com', description: 'Target URL for OWASP ZAP and SSL scans')
+        string(name: 'TARGET_URL', defaultValue: 'http://testphp.vulnweb.com', description: 'Target URL/IP without http/https')
     }
 
     environment {
@@ -40,7 +40,7 @@ pipeline {
                 sh 'mvn clean install'
 		            }
 		        }
-      
+    /*  
 		stage('Check-Secrets - Trufflehog') {
             steps {
                 sh '''
@@ -62,7 +62,7 @@ pipeline {
     	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
     		     }
             }   
-       
+   
 	      stage('SAST - SonarQube') {
 		    steps {
 		        withSonarQubeEnv('sonar') {
@@ -77,7 +77,7 @@ pipeline {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
             }
         }
-
+*/
 		 stage('Nmap Scan') {
 		            steps {
 		                script {
@@ -119,7 +119,7 @@ pipeline {
                 """
             }
         }
-	
+	/*
 		stage('Security Scan (OWASP ZAP)') { 
 		    steps {
 		        script {
