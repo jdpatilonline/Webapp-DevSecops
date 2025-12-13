@@ -119,14 +119,14 @@ pipeline {
 	        steps {
 		        // Clean up old output file if it exists
 	              sh 'rm -f nikto-output.xml || true'
-	              echo "Target URL without http/s: ${Target_HOST_URL}"	
+	              echo "Target URL without http/s: ${Target_HOST_URL}"
 				
 				// Run the Nikto scan using the dynamic parameter TARGET_URL
 				   echo "Target URL: ${params.TARGET_URL}"
-	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -output /report/nikto-output.xml "
-	      		// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -output /report/nikto-output.html "
+	            // sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -maxtime 10m -timeout 5 -output /report/nikto-output.xml "
+	      		   sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x6 -Plugins apacheusers,header,paths -maxtime 10m -timeout 5 -output /report/nikto-output.xml "
 				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -output /report/nikto-output.xml "
-				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -output /report/nikto-output.html "
+				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -maxtime 60m -timeout 5 -output /report/nikto-output.html "
 
 				// Display the Nikto output
 	               sh 'cat nikto-output.xml'
