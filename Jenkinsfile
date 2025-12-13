@@ -53,10 +53,10 @@ pipeline {
 */
 	    stage('SCA - Trivy') {
             steps {
-                sh '''
-  				   rm -f trivy-fs-report.json || true
 				// Scan a filesystem instead of a Docker image with Trivy using Docker
-				  docker run --rm -v $(pwd):/scan -v $(pwd)/trivy-reports:/report aquasec/trivy fs /scan --format json --output /report/trivy-fs-report.json
+                sh '''
+  				  rm -f trivy-fs-report.json || true
+				  docker run --rm -u 0 -v $(pwd):/scan -v $(pwd)/trivy-reports:/report aquasec/trivy fs /scan --format json --output /report/trivy-fs-report.json
 				  cat /report/trivy-fs-report.json
                 '''
             }
@@ -87,7 +87,7 @@ pipeline {
             steps {
                 sh '''
   				  rm -f semgrep-report.json || true
-				  docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config=auto --json --output semgrep-report.json
+				  docker run --rm -u 0 -v "$PWD:/src" semgrep/semgrep semgrep scan --config=auto --json --output semgrep-report.json
 				  cat semgrep-report.json
                 '''
             }
