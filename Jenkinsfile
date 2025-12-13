@@ -36,7 +36,7 @@ pipeline {
 				sh "pwd"
             }
         }
-
+/*
 	  stage('Build') {
             steps {
                 sh 'mvn clean install'
@@ -87,6 +87,7 @@ pipeline {
 				    }
 				}
 */
+/*		
 	    stage('SAST - Semgrep') {
             steps {
                 sh '''
@@ -174,16 +175,16 @@ pipeline {
 			        }
 		    }
 		}
-
+*/
         stage('Upload Reports to DefectDojo') {
             steps {
                 script {
                     def reports = [
-				//		[file: "${REPORT_DIRECTORY}/trufflehog", type: "trufflehog Scan"],
-						[file: "${REPORT_DIRECTORY}/trivy-fs-report.json", type: "Trivy Scan"],
-						[file: "${REPORT_DIRECTORY}/semgrep-report.json", type: "Semgrep JSON Report"],
-				//		[file: "${REPORT_DIRECTORY}/sonarqube.json", type: "SonarQube Scan"],
-                        [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan"],
+				//		[file: "${WORKSPACE}/trufflehog", type: "trufflehog Scan"],
+						[file: "${WORKSPACE}/trivy-fs-report.json", type: "Trivy Scan"],
+						[file: "${WORKSPACE}/semgrep-report.json", type: "Semgrep JSON Report"],
+				//		[file: "${WORKSPACE}/sonarqube.json", type: "SonarQube Scan"],
+                        [file: "${WORKSPACE}/nmap.xml", type: "Nmap Scan"],
                         [file: "${WORKSPACE}/sslyze-output.json", type: "Sslyze Scan"],
 						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
                         [file: "${WORKSPACE}/zap_report.xml", type: "ZAP Scan"]
