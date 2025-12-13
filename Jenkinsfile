@@ -46,8 +46,8 @@ pipeline {
                 sh '''
                 rm -f trufflehog || true
                 docker run --rm gesellix/trufflehog --json https://github.com/jdpatilonline/Webapp-DevSecops.git > trufflehog
-                cat trufflehog
                 '''
+				sh "cat trufflehog"
             }
         }
 */
@@ -57,8 +57,8 @@ pipeline {
                 sh '''
   				  rm -f trivy-fs-report.json || true
 				  docker run --rm -u 0 -v $(pwd):/scan -v $(pwd):/report aquasec/trivy fs /scan --format json --output /report/trivy-fs-report.json || exit 0
-				  cat trivy-fs-report.json
                 '''
+				sh "cat trivy-fs-report.json"
             }
         }
 /*   
@@ -88,8 +88,8 @@ pipeline {
                 sh '''
   				  rm -f semgrep-report.json || true
 				  docker run --rm -u 0 -v "$PWD:/src" semgrep/semgrep semgrep scan --config=auto --json --output semgrep-report.json
-				  cat semgrep-report.json
                 '''
+				 sh "cat semgrep-report.json"
             }
         }
 /*	
@@ -128,10 +128,10 @@ pipeline {
 				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -output /report/nikto-output.html "
 
 				// Display the Nikto output
-	                sh 'cat nikto-output.xml'
-					    }
-					}    
-		
+	               sh 'cat nikto-output.xml'
+					   }
+				}    
+					
         stage('SSL Checks - SSlyze') {
             steps {
 				echo "Target URL without http/s: ${Target_HOST_URL}"	
@@ -178,9 +178,12 @@ pipeline {
             steps {
                 script {
                     def reports = [
-                        [file: "${REPORT_DIRECTORY}/dependency-check-report.xml", type: "Dependency Check Scan"],
+				//		[file: "${REPORT_DIRECTORY}/trufflehog", type: "trufflehog Scan"],
+						[file: "${REPORT_DIRECTORY}/trivy-fs-report.json", type: "Trivy Scan"],
+						[file: "${REPORT_DIRECTORY}/semgrep-report.json", type: "Semgrep JSON Report"],
+				//		[file: "${REPORT_DIRECTORY}/sonarqube.json", type: "SonarQube Scan"],
                         [file: "${WORKSPACE}/nmap.json", type: "Nmap Scan"],
-                        [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan"],
+                        [file: "${WORKSPACE}/sslyze-output.json", type: "Sslyze Scan"],
 						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
                         [file: "${WORKSPACE}/zap_report.xml", type: "ZAP Scan"]
                     ]
