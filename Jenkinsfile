@@ -36,7 +36,7 @@ pipeline {
 				sh "pwd"
             }
         }
-/*
+
 	  stage('Build') {
             steps {
                 sh 'mvn clean install'
@@ -87,7 +87,7 @@ pipeline {
 				    }
 				}
 */
-/*		
+		
 	    stage('SAST - Semgrep') {
             steps {
                 sh '''
@@ -175,7 +175,7 @@ pipeline {
 			        }
 		    }
 		}
-*/
+
         stage('Upload Reports to DefectDojo') {
             steps {
                 script {
