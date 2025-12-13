@@ -32,6 +32,8 @@ pipeline {
                 echo "PATH = ${PATH}"
                 echo "M2_HOME = ${M2_HOME}"
                 '''
+				sh "ls -al ."
+				sh "pwd"
             }
         }
 
@@ -131,10 +133,11 @@ pipeline {
 				if (fileExists('nikto-output.xml'))
 					{ echo "Report generated successfully."
 					  sh "cat nikto-output.xml"
-			    } else {  sh "echo ZAP Report was not generated. Check scan logs."  } 
+				    } else {  sh "echo ZAP Report was not generated. Check scan logs."  } 
+					}
 				}
-					}    
-						
+			}
+							
         stage('SSL Checks - SSlyze') {
             steps {
 				echo "Target URL without http/s: ${Target_HOST_URL}"	
@@ -160,20 +163,17 @@ pipeline {
 		                 #docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -m 60 -a -j -d -x zap_report.xml -r zap_report.html || exit 0
 					      docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -m 720 -a -j -d -x zap_report.xml -r zap_report.html -a || exit 0
 									"""
-					
 		            sh zapCommand
 					echo "Scan Finsihed..."
 					
 		            // 3. check if the report was created to confirm success
 		            if (fileExists('zap_report.xml')) {
 		                echo "ZAP Report generated successfully."
-						sh "ls -al ."
 						sh "cat zap_report.xml"
 		            } else {
 		                sh "echo ZAP Report was not generated. Check Docker logs."
-						sh "ls -al ."
-		            }
-		        }
+			            }
+			        }
 		    }
 		}
 
@@ -207,7 +207,7 @@ pipeline {
                               -F "product_name=${PRODUCT_NAME}" \
                             """
                             // Output a message indicating successful upload
-                            echo "Successfully uploaded ${report.type} from ${report.file} with minimum severity ${report.min_sev}"
+                            echo "Successfully uploaded File Type: ${report.type} file name: ${report.file} "
                         } else {
                             // Log a warning message if the file does not exist
                             echo "WARNING: File ${report.file} not found. Skipping upload for ${report.type}."
