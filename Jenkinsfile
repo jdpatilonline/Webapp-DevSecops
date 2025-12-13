@@ -126,7 +126,7 @@ pipeline {
 				// Run the Nikto scan using the dynamic parameter TARGET_URL
 				   echo "Target URL: ${params.TARGET_URL}"
 	            // sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -timeout 10 -output /report/nikto-output.xml "
-	      		   sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x6 -Plugins apacheusers,header,paths -timeout 10 -output /report/nikto-output.xml "
+	      		  sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x6 -timeout 10 -output /report/nikto-output.xml "
 				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -output /report/nikto-output.xml "
 				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning x -maxtime 60m -timeout 10 -output /report/nikto-output.html || exit 0"
 			script {	
@@ -160,7 +160,7 @@ pipeline {
 					// exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
 		            echo "Starting ZAP Scan..."
 					def zapCommand = """
-		                 #docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -m 60 -a -j -d -x zap_report.xml -r zap_report.html || exit 0
+		                 #docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -m 60 -j -d -x zap_report.xml -r zap_report.html || exit 0
 					      docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -m 720 -a -j -d -x zap_report.xml -r zap_report.html -a || exit 0
 									"""
 		            sh zapCommand
