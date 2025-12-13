@@ -40,7 +40,7 @@ pipeline {
                 sh 'mvn clean install'
 		            }
 		        }
-/*  
+  
 		stage('Check-Secrets - Trufflehog') {
             steps {
                 sh '''
@@ -50,7 +50,7 @@ pipeline {
 				sh "cat trufflehog"
             }
         }
-*/
+
 	    stage('SCA - Trivy') {
             steps {
 				// Scan a filesystem instead of a Docker image with Trivy using Docker
@@ -61,7 +61,7 @@ pipeline {
 				sh "cat trivy-fs-report.json"
             }
         }
-/*   
+   
     	stage ('SCA-Owasp-Dependency-checker') {
     	      steps {
     	         sh 'rm owasp* || true'              
@@ -73,10 +73,11 @@ pipeline {
     	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
     		     }
             }   
-
+/*
 	      stage('SAST - SonarQube') {
 		    steps {
 		        withSonarQubeEnv('sonar') {
+					sh 'docker run -d -p 9000:9000 sonarqube:9.9.6-community'	// Setup sonarqube scanner with sonarqube wih api and other configuration 
 		            sh 'mvn clean install sonar:sonar'
 					sh 'echo SAST scan Finished'
 				        }
@@ -92,7 +93,7 @@ pipeline {
 				 sh "cat semgrep-report.json"
             }
         }
-/*	
+	
         stage('WebApp Deployment - Tomcat') {
             steps {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
@@ -213,6 +214,6 @@ pipeline {
 					}
 	            }
 	        }
-*/
+
 	}
 }
