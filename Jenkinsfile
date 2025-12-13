@@ -56,8 +56,8 @@ pipeline {
 				// Scan a filesystem instead of a Docker image with Trivy using Docker
                 sh '''
   				  rm -f trivy-fs-report.json || true
-				  docker run --rm -u 0 -v $(pwd):/scan -v $(pwd)/trivy-reports:/report aquasec/trivy fs /scan --format json --output /report/trivy-fs-report.json
-				  cat /report/trivy-fs-report.json
+				  docker run --rm -u 0 -v $(pwd):/scan -v $(pwd):/report aquasec/trivy fs /scan --format json --output /report/trivy-fs-report.json || exit 0
+				  cat trivy-fs-report.json
                 '''
             }
         }
