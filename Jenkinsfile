@@ -40,7 +40,7 @@ pipeline {
                 sh 'mvn clean install'
 		            }
 		        }
-    /*  
+/*  
 		stage('Check-Secrets - Trufflehog') {
             steps {
                 sh '''
@@ -50,7 +50,18 @@ pipeline {
                 '''
             }
         }
-
+*/
+	    stage('SCA - Trivy') {
+            steps {
+                sh '''
+  				   rm -f trivy-fs-report.json || true
+				// Scan a filesystem instead of a Docker image with Trivy using Docker
+				  docker run --rm -v $(pwd):/scan -v $(pwd)/trivy-reports:/report aquasec/trivy fs /scan --format json --output /report/trivy-fs-report.json
+				  cat /report/trivy-fs-report.json
+                '''
+            }
+        }
+/*   
     	stage ('SCA-Owasp-Dependency-checker') {
     	      steps {
     	         sh 'rm owasp* || true'              
@@ -62,7 +73,7 @@ pipeline {
     	         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
     		     }
             }   
-   
+
 	      stage('SAST - SonarQube') {
 		    steps {
 		        withSonarQubeEnv('sonar') {
@@ -71,13 +82,23 @@ pipeline {
 				        }
 				    }
 				}
-
+*/
+	    stage('SAST - Semgrep') {
+            steps {
+                sh '''
+  				  rm -f semgrep-report.json || true
+				  docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config=auto --json --output semgrep-report.json
+				  cat semgrep-report.json
+                '''
+            }
+        }
+		
         stage('WebApp Deployment - Tomcat') {
             steps {
                 sh 'cp target/*.war /prod/apache-tomcat-8.5.39/webapps/webapp.war'
             }
         }
-*/
+
 		 stage('Nmap Scan') {
 		            steps {
 		                script {
@@ -92,7 +113,7 @@ pipeline {
 		                }
 		            }
 		        }
-	
+	*/
 	    stage('Nikto Scan') {
 	        steps {
 		        // Clean up old output file if it exists
