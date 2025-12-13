@@ -104,7 +104,7 @@ pipeline {
 				// Run the Nikto scan using the dynamic parameter TARGET_URL
 				   echo "Target URL: ${params.TARGET_URL}"
 	               sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive"
-				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -output /report/nikto-output.xml -nointeractive -Tuning 1"
+				// sh "docker run --user \$(id -u):\$(id -g) --rm -v \$(pwd):/report -i secfigo/nikto:latest -h ${params.TARGET_URL} -nointeractive -Tuning 1 -output /report/nikto-output.xml -output /report/nikto-output.html "
 
 				// Display the Nikto output
 	                sh 'cat nikto-output.xml'
@@ -125,18 +125,15 @@ pipeline {
 		    steps {
 		        script {
 		            echo "Dowloading ZAP ..."
-		            // 1. Pull the image manually to ensure it exists
-		           // sh 'docker pull zaproxy/zap-stable'
-		            // 2. Run the container using standard Docker CLI
+		            // Run the container using standard Docker CLI
 		            // -u 0: run as root
 		            // -v $WORKSPACE:/zap/wrk:rw : map the workspace
-		            // zap-baseline.py ... : the command to run inside
-		            // exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
-					// -a: This flag enables active scanning
+		            // zap-baseline.py ... : the command to run passive scan and zap-full-scan.py to run full scan with -a: This flag enables active scanning 
+					// exit 0 is added to the shell command so Jenkins doesn't fail immediately if ZAP finds bugs (returns 1 or 2)
 		            echo "Starting ZAP Scan..."
 					def zapCommand = """
-		               # docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -a || exit 0
-						docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -r zap_report.xml -a || exit 0
+		                # docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t ${params.TARGET_URL} -r zap_report.xml -r zap_report.html || exit 0
+					      docker run --rm -u 0 -v ${WORKSPACE}:/zap/wrk:rw zaproxy/zap-stable zap-full-scan.py -t ${params.TARGET_URL} -r zap_report.xml -r zap_report.html -a || exit 0
 						"""
 					
 		            sh zapCommand
@@ -145,10 +142,11 @@ pipeline {
 		            // 3. check if the report was created to confirm success
 		            if (fileExists('zap_report.xml')) {
 		                echo "ZAP Report generated successfully."
-						sh "ls -al zap_report.xml"
+						sh "ls -al ."
 						sh "cat zap_report.xml"
 		            } else {
 		                sh "echo ZAP Report was not generated. Check Docker logs."
+						sh "ls -al ."
 		            }
 		        }
 		    }
