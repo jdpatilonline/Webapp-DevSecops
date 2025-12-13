@@ -185,7 +185,7 @@ pipeline {
 						[file: "${WORKSPACE}/semgrep-report.json", type: "Semgrep JSON Report"],
 				//		[file: "${WORKSPACE}/sonarqube.json", type: "SonarQube Scan"],
                         [file: "${WORKSPACE}/nmap.xml", type: "Nmap Scan"],
-                        [file: "${WORKSPACE}/sslyze-output.json", type: "Sslyze Scan"],
+                        [file: "${WORKSPACE}/sslyze-output.json", type: "SSL Labs Scan"],
 						[file: "${WORKSPACE}/nikto-output.xml", type: "Nikto Scan"],
                         [file: "${WORKSPACE}/zap_report.xml", type: "ZAP Scan"]
                     ]
